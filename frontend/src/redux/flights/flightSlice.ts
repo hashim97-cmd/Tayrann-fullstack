@@ -1,0 +1,75 @@
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import actGetFlights from './act/actGetFlights';
+
+// Step 1: Define the type for flight data
+interface Flight {
+  origin: string;
+  destination: string;
+  departureDate: string;
+  returnDate?: string;
+  travelers: number;
+  page?: string;
+  pageSize?: string;
+  flightClass?: string;
+}
+
+export type TripType = 'roundtrip' | 'oneway' | 'multiCities';
+
+// Step 2: Define the state structure
+interface FlightDataState {
+  flights: Flight[]; // This is where the flight data will be stored
+  tripType: TripType;
+  loading: 'pending' | 'succeeded' | 'failed' | null;
+  error: string | null;
+}
+
+const initialState: FlightDataState = {
+  flights: [],
+  tripType: 'oneway',
+  loading: null,
+  error: null,
+};
+
+export const flightDataSlice = createSlice({
+  name: 'flights',
+  initialState,
+  reducers: {
+    addFlightData: (state, action: PayloadAction<Flight>) => {
+      state.flights.push(action.payload); // Push a single flight object to the array
+    },
+    setFlightData: (state, action: PayloadAction<Flight[]>) => {
+      state.flights = action.payload; // Replace the flight array with a new one
+    },
+    removeFlightData: (state, action: PayloadAction<number>) => {
+      state.flights.splice(action.payload, 1); // Remove the flight at the given index
+    },
+    clearFlightData: (state) => {
+      state.flights = []; // Clear the flight data
+    },
+    changeTripType: (state, action: PayloadAction<TripType>) => {
+      state.tripType = action.payload
+    }
+  },
+  extraReducers: (builder) => {
+    builder.addCase(actGetFlights.pending, (state) => {
+      state.loading = 'pending';
+      state.error = null;
+    });
+    builder.addCase(actGetFlights.fulfilled, (state, action) => {
+      state.loading = 'succeeded';
+      // Assuming the API returns flight data in action.payload
+      state.flights = action.payload.flights; // Update state with fetched flight data
+    });
+    builder.addCase(actGetFlights.rejected, (state, action) => {
+      state.loading = 'failed';
+      if (typeof action.payload === 'string') {
+        state.error = action.payload;
+      } else {
+        state.error = 'Unknown error occurred';
+      }
+    });
+  },
+});
+
+export const { addFlightData, setFlightData, clearFlightData, removeFlightData,changeTripType } = flightDataSlice.actions;
+export default flightDataSlice.reducer;
