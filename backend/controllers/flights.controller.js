@@ -7,7 +7,7 @@ const formatDuration = (isoDuration) => {
     const matches = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
     const hours = matches[1] ? parseInt(matches[1]) : 0;
     const minutes = matches[2] ? parseInt(matches[2]) : 0;
-    
+
     if (hours > 0 && minutes > 0) return `${hours} hours ${minutes} minutes`;
     if (hours > 0) return `${hours} hours`;
     return `${minutes} minutes`;
@@ -25,6 +25,7 @@ const formatTime = (isoTime) => {
 };
 
 export const flightOffers = async (req, res, next) => {
+    console.log(req.body,"requst body")
     try {
         const { destinations, adults, children, infants, cabinClass, directFlight } = req.body;
 
@@ -221,8 +222,8 @@ export const flightOffers = async (req, res, next) => {
                 total_pricing_by_traveller_type: offer.travelerPricings.reduce((acc, tp) => {
                     acc[tp.travelerType] = {
                         totalPrice: parseFloat(tp.price.total),
-                        travelerCount: tp.travelerType === "ADULT" ? adults : 
-                                      tp.travelerType === "CHILD" ? children : infants
+                        travelerCount: tp.travelerType === "ADULT" ? adults :
+                            tp.travelerType === "CHILD" ? children : infants
                     };
                     return acc;
                 }, {}),
@@ -239,7 +240,8 @@ export const flightOffers = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            data: formattedResponse
+            data: formattedResponse,
+            res: response.data
         });
 
     } catch (error) {

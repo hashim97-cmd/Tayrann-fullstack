@@ -8,7 +8,7 @@ export async function POST(request) {
     const departureDate = searchParams.get("departureDate");
     const returnDate = searchParams.get("returnDate");
     const travelers = searchParams.get("travelers") || "1";
-    const adult = searchParams.get("adult") || "1";
+    const adult = searchParams.get("adult") || "2";
     const child = searchParams.get("child") || "0";
     const lapinfant = searchParams.get("lapinfant") || "0";
     const flightClass = searchParams.get("class") || "Economy";

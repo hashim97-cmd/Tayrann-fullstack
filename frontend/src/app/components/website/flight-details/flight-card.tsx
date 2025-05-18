@@ -42,7 +42,6 @@ const FlightCard = ({
   const searchParams = useSearchParams();
   const travelersParam = searchParams.get("adult") || "1";
   const dispatch = useDispatch();
-  console.log(flight, "flight")
   useEffect(() => {
     if (from === "selection") {
       setIsOpenDetails(true);
