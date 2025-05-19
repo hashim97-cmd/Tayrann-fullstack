@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
-
 import CustomSelect from "../../shared/customSelect";
 import { AiroplanIcon, ArrowCircleIcon, BedIcon } from "@/app/svg";
 import { LuSearch } from "react-icons/lu";
@@ -25,8 +24,8 @@ import HotelSearch from "../hotel-search/test-hotel";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { IoMdAdd } from "react-icons/io";
-
-
+import { MdDelete } from "react-icons/md";
+import { setSearchData } from "@/redux/flights/flightSlice";
 interface FlightSegment {
   id: string;
   from: string;
@@ -38,7 +37,7 @@ interface FlightFormData {
   from: string;
   to: string;
   departure: Date;
-  return: Date;
+  returnDate: Date;
   travelers: string;
   class: string;
   flightType: string;
@@ -74,11 +73,11 @@ const HeroSection = () => {
     from: "",
     to: "",
     departure: new Date(),
-    return: new Date(),
+    returnDate: new Date(),
     travelers: "",
     class: "",
-    flightType: "oneway",
-    segments: [{ from: "", to: "", date: new Date() }]
+    flightType: "oneway" , // Explicit type assertion
+    segments: [{ id: "", from: "", to: "", date: new Date() }]
   });
 
   const [hotelFormData, setHotelFormData] = useState({
@@ -162,7 +161,7 @@ const HeroSection = () => {
     if (type !== "multiCities") {
       setFlightFormData(prev => ({
         ...prev,
-        segments: [{ from: "", to: "", date: new Date() }]
+        segments: [{ id: "", from: "", to: "", date: new Date() }]
       }));
     }
   };
@@ -190,25 +189,8 @@ const HeroSection = () => {
       }
     }
 
-    // Prepare query params
-    let queryParams = `adult=${adults}&child=${children}&lapinfant=${infants}&tripType=${encodeURIComponent(flightFormData.flightType)}&class=${encodeURIComponent(flightFormData.class)}`;
-
-    if (flightFormData.flightType === "multiCities") {
-      flightFormData.segments?.forEach((segment, index) => {
-        queryParams += `&segment${index}_from=${encodeURIComponent(segment.from)}`;
-        queryParams += `&segment${index}_to=${encodeURIComponent(segment.to)}`;
-        queryParams += `&segment${index}_date=${encodeURIComponent(segment.date?.toISOString() || "")}`;
-      });
-    } else {
-      queryParams += `&origin=${encodeURIComponent(flightFormData.from)}`;
-      queryParams += `&destination=${encodeURIComponent(flightFormData.to)}`;
-      queryParams += `&departureDate=${encodeURIComponent(flightFormData.departure.toISOString())}`;
-      if (flightFormData.flightType === "roundtrip") {
-        queryParams += `&returnDate=${encodeURIComponent(flightFormData.return.toISOString())}`;
-      }
-    }
-
-    router.push(`/${locale}/flight-search?${queryParams}`);
+    dispatch(setSearchData(flightFormData))
+    router.push(`/${locale}/flight-search`);
     setLoading(false);
   };
 
@@ -276,20 +258,7 @@ const HeroSection = () => {
                 {flightFormData.flightType === "multiCities" ? (
                   <div className="space-y-4">
                     {flightFormData.segments?.map((segment, index) => (
-                      <div key={segment.id} className="border-t border-bordered gap-12 py-4 mt-2 grid lg:grid-cols-4 px-4">
-                        <div className="flex items-center gap-2 col-span-4">
-                          <h3 className="font-medium">Flight {index + 1}</h3>
-                          {flightFormData.segments!.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => removeFlightSegment(index)}
-                              className="text-red-500 text-sm"
-                            >
-                              Remove
-                            </button>
-                          )}
-                        </div>
-
+                      <div key={segment.id} className="border-t border-bordered gap-4 py-2 mt-2 grid lg:grid-cols-4 px-4">
                         <AirportSearchField
                           error={index === 0 ? fromError : undefined}
                           label={t("heroSection.searchForm.fromFieldLabel")}
@@ -320,15 +289,26 @@ const HeroSection = () => {
                           }
                           onChange={(date) => handleSegmentChange(index, "date", date)}
                         />
+                        <div className="flex items-center mx-4 self-end">
+                          {flightFormData.segments!.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeFlightSegment(index)}
+                              className="bg-red-500 py-3 px-4 rounded-lg text-md flex justify-between items-center gap-2"
+                            >
+                              <MdDelete color={"#fff"} />
 
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
 
                     <button
                       onClick={addFlightSegment}
-                      className="flex items-center justify-between p-4 gap-2 capitalize ml-4"
+                      className="flex items-center bg-emerald-900 rounded-lg justify-between p-4 gap-2 capitalize"
                     >
-                      add more flights <IoMdAdd />
+                      <IoMdAdd color={"#fff"} />
                     </button>
                   </div>
                 ) : (
@@ -362,7 +342,7 @@ const HeroSection = () => {
                         label={t("heroSection.searchForm.returnDate")}
                         placeholder={t("heroSection.searchForm.returnDate")}
                         className="border-b py-2 border-bordered"
-                        value={flightFormData.return}
+                        value={flightFormData.returnDate}
                         minDate={flightFormData.departure}
                         onChange={(date) => handleFlightChange("return", date)}
                       />

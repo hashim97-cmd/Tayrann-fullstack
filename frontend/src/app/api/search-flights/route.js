@@ -56,8 +56,6 @@ export async function POST(request) {
     try {
         // const accessToken = await getAmadeusToken();
         const apiUrl = 'https://testflight.eficta.com/api/flights-services/v1/public/amadeus/search?mapped=true';
-        
-;
 
         // Calculate offset based on page and pageSize
         const offset = (parseInt(page) - 1) * parseInt(pageSize);

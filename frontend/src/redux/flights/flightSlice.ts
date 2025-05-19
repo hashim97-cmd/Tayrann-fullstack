@@ -13,18 +13,37 @@ interface Flight {
   flightClass?: string;
 }
 
+interface FlightSegment {
+  id: string | null;
+  from: string | null;
+  to: string | null;
+  date: Date | null;
+}
+
+interface FlightFormData {
+  from: string;
+  to: string;
+  departure: Date;
+  returnDate: Date;
+  travelers: string;
+  class: string;
+  flightType: string;
+  segments?: FlightSegment[];
+}
+
 export type TripType = 'roundtrip' | 'oneway' | 'multiCities';
 
-// Step 2: Define the state structure
 interface FlightDataState {
   flights: Flight[]; // This is where the flight data will be stored
-  tripType: TripType;
+  searchParamsData: FlightFormData | null,
+  tripType: string;
   loading: 'pending' | 'succeeded' | 'failed' | null;
   error: string | null;
 }
 
 const initialState: FlightDataState = {
   flights: [],
+  searchParamsData: null,
   tripType: 'oneway',
   loading: null,
   error: null,
@@ -34,6 +53,12 @@ export const flightDataSlice = createSlice({
   name: 'flights',
   initialState,
   reducers: {
+    setSearchData: (state, action: PayloadAction<FlightFormData>) => {
+      state.searchParamsData = action.payload;
+    },
+    clearFlightSearch: (state) => {
+      state.searchParamsData = null;
+    },
     addFlightData: (state, action: PayloadAction<Flight>) => {
       state.flights.push(action.payload); // Push a single flight object to the array
     },
@@ -71,5 +96,5 @@ export const flightDataSlice = createSlice({
   },
 });
 
-export const { addFlightData, setFlightData, clearFlightData, removeFlightData,changeTripType } = flightDataSlice.actions;
+export const { addFlightData, setFlightData, clearFlightData, removeFlightData, changeTripType,setSearchData,clearFlightSearch } = flightDataSlice.actions;
 export default flightDataSlice.reducer;
