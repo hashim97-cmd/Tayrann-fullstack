@@ -26,19 +26,20 @@ import { useLocale } from "next-intl";
 import { IoMdAdd } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { setSearchData } from "@/redux/flights/flightSlice";
-interface FlightSegment {
+
+export interface FlightSegment {
   id: string;
-  from: string;
-  to: string;
-  date: Date | null;
+  origin: string;
+  destination: string;
+  date: Date;
 }
 
 interface FlightFormData {
-  from: string;
-  to: string;
+  origin: string;
+  destination: string;
   departure: Date;
   returnDate: Date;
-  travelers: string;
+  travelers: { adults: number; children: number; infants: number; };
   class: string;
   flightType: string;
   segments?: FlightSegment[];
@@ -70,16 +71,19 @@ const HeroSection = () => {
   const [rooms, setRooms] = useState<Room[]>([{ id: 1, adults: 1, children: 0 }]);
 
   const [flightFormData, setFlightFormData] = useState<FlightFormData>({
-    from: "",
-    to: "",
+    origin: "",
+    destination: "",
     departure: new Date(),
     returnDate: new Date(),
-    travelers: "",
+    travelers: {
+      adults,
+      children,
+      infants
+    },
     class: "",
-    flightType: "oneway" , // Explicit type assertion
-    segments: [{ id: "", from: "", to: "", date: new Date() }]
+    flightType: "oneway", // Explicit type assertion
+    segments: [{ id: "", origin: "", destination: "", date: new Date() }]
   });
-
   const [hotelFormData, setHotelFormData] = useState({
     address: "",
     checkIn: "",
@@ -121,8 +125,8 @@ const HeroSection = () => {
 
   const handleFlightChange = (name: string, value: any) => {
     setFlightFormData(prev => ({ ...prev, [name]: value }));
-    if (name === "from") setFromError(null);
-    if (name === "to") setToError(null);
+    if (name === "origin") setFromError(null);
+    if (name === "destination") setToError(null);
   };
 
   const handleSegmentChange = (index: number, field: keyof FlightSegment, value: any) => {
@@ -136,7 +140,7 @@ const HeroSection = () => {
   const addFlightSegment = () => {
     setFlightFormData(prev => ({
       ...prev,
-      segments: [...prev.segments!, { id: uuidv4(), from: "", to: "", date: new Date() }]
+      segments: [...prev.segments!, { id: uuidv4(), origin: "", destination: "", date: new Date() }]
     }));
   };
 
@@ -161,7 +165,7 @@ const HeroSection = () => {
     if (type !== "multiCities") {
       setFlightFormData(prev => ({
         ...prev,
-        segments: [{ id: "", from: "", to: "", date: new Date() }]
+        segments: [{ id: "", origin: "", destination: "", date: new Date() }]
       }));
     }
   };
@@ -172,7 +176,7 @@ const HeroSection = () => {
     // Validation
     if (flightFormData.flightType === "multiCities") {
       const hasEmptyFields = flightFormData.segments?.some(
-        segment => !segment.from || !segment.to || !segment.date
+        segment => !segment.origin || !segment.destination || !segment.date
       );
       if (hasEmptyFields) {
         setFromError(e("fromError"));
@@ -181,9 +185,9 @@ const HeroSection = () => {
         return;
       }
     } else {
-      if (!flightFormData.from || !flightFormData.to) {
-        if (!flightFormData.from) setFromError(e("fromError"));
-        if (!flightFormData.to) setToError(e("toError"));
+      if (!flightFormData.origin || !flightFormData.destination) {
+        if (!flightFormData.origin) setFromError(e("fromError"));
+        if (!flightFormData.destination) setToError(e("toError"));
         setLoading(false);
         return;
       }
@@ -264,7 +268,7 @@ const HeroSection = () => {
                           label={t("heroSection.searchForm.fromFieldLabel")}
                           placeholder={t("heroSection.searchForm.fromFieldLabel")}
                           className="border-b py-2 !border-borderColor"
-                          onSelect={(value) => handleSegmentChange(index, "from", value)}
+                          onSelect={(value) => handleSegmentChange(index, "origin", value)}
                           icon={fromImg}
 
                         />
@@ -274,7 +278,7 @@ const HeroSection = () => {
                           label={t("heroSection.searchForm.toFieldLabel")}
                           placeholder={t("heroSection.searchForm.toFieldLabel")}
                           className="border-b py-2 !border-borderColor"
-                          onSelect={(value) => handleSegmentChange(index, "to", value)}
+                          onSelect={(value) => handleSegmentChange(index, "destination", value)}
                           icon={toImg}
                         />
                         <CustomDatePicker
@@ -318,7 +322,7 @@ const HeroSection = () => {
                       label={t("heroSection.searchForm.fromFieldLabel")}
                       placeholder={t("heroSection.searchForm.fromFieldLabel")}
                       className="border-b py-2 !border-borderColor"
-                      onSelect={(value) => handleFlightChange("from", value)}
+                      onSelect={(value) => handleFlightChange("origin", value)}
                       icon={fromImg}
                     />
                     <AirportSearchField
@@ -326,7 +330,7 @@ const HeroSection = () => {
                       label={t("heroSection.searchForm.toFieldLabel")}
                       placeholder={t("heroSection.searchForm.toFieldLabel")}
                       className="border-b py-2 !border-borderColor"
-                      onSelect={(value) => handleFlightChange("to", value)}
+                      onSelect={(value) => handleFlightChange("destination", value)}
                       icon={toImg}
                     />
                     <CustomDatePicker

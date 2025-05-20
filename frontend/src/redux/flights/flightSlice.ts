@@ -15,17 +15,17 @@ interface Flight {
 
 interface FlightSegment {
   id: string | null;
-  from: string | null;
-  to: string | null;
+  origin: string | null;
+  destination: string | null;
   date: Date | null;
 }
 
 interface FlightFormData {
-  from: string;
-  to: string;
+  origin: string;
+  destination: string;
   departure: Date;
   returnDate: Date;
-  travelers: string;
+  travelers: { adults: number; children: number; infants: number; };
   class: string;
   flightType: string;
   segments?: FlightSegment[];

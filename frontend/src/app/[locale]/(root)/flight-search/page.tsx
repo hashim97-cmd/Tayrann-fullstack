@@ -20,7 +20,7 @@ import { FaPlaneDeparture, FaPlaneArrival } from "react-icons/fa";
 import { clearFlightData, removeFlightData } from "@/redux/flights/flightSlice";
 import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
-
+import { FlightSegment } from "@/app/components/website/home/hero-section";
 // import { changeTripType } from "@/redux/flights/flightSlice";
 
 export interface AirlineCarrier {
@@ -32,6 +32,24 @@ export interface AirlineCarrier {
 const Page: React.FC = () => {
   const locale = useLocale();
   const t = useTranslations("filters");
+  const searchParamsData = useSelector((state: any) => state.flightData.searchParamsData);
+
+  // Directly destructure the properties (without Data suffix)
+  const {
+    origin,
+    destination,
+    departure,
+    returnDate,
+    travelers,
+    flightType,
+    flightClass,
+    segments
+  } = searchParamsData || {};
+
+  // For travelers, you might need to parse if it's stored as an object
+  const parsedTravelers = typeof travelers === 'string'
+    ? { adults: 1, children: 0, infants: 0 } // Default if string
+    : travelers;
 
   const searchParams = useSearchParams();
   const originParam = searchParams.get("origin");
@@ -42,22 +60,22 @@ const Page: React.FC = () => {
   const travelersParam = searchParams.get("adult") || "1";
   const flightClassParam = searchParams.get("class");
   const [sortedFlights, setSortedFlights] = useState<any[]>([]);
-  const [origin, setOrigin] = useState(originParam || "");
-  const [destination, setDestination] = useState(destinationParam || "");
+  const [originState, setOrigin] = useState(origin || "");
+  const [destinationState, setDestination] = useState(destination || "");
 
-  const [departureDate, setDepartureDate] = useState(
-    departureDateParam ? new Date(departureDateParam) : new Date()
+  const [departureState, setDepartureDate] = useState(
+    departure ? new Date(departure) : new Date()
   );
-  const [returnDate, setReturnDate] = useState(
-    returnDateParam ? new Date(returnDateParam) : null
+  const [returnDateState, setReturnDate] = useState(
+    returnDate ? new Date(returnDate) : null
   );
 
-  const [travelers, setTravelers] = useState({
-    adults: Number(travelersParam),
+  const [travelersState, setTravelers] = useState({
+    adults: Number(travelers),
     children: 0,
     infants: 0,
   });
-  const [flightClass, setFlightClass] = useState(flightClassParam || "ECONOMY");
+  const [flightClasss, setFlightClass] = useState(flightClass || "ECONOMY");
   const [filters, setFilters] = useState<{ [key: string]: any }>({
     price: Infinity, // Default to no price limit
     stops: [], // Default to show all stops
@@ -83,25 +101,53 @@ const Page: React.FC = () => {
 
   function convertToISO8601(dateString: Date) {
     const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    // const year = date.getFulconvertToISO8601lYear();
+    // const month = String(date.getMonth() + 1).padStart(2, "0");
+    // const day = String(date.getDate()).padStart(2, "0");
+    const isoString = dateString.toISOString().split('T')[0]; // format: YYYY-MM-DD
+
+    return isoString;
   }
+
 
   const getFlights = async () => {
     setLoading(true);
+    const requestData = {
+      destinations: flightType === 'multiCities'
+        ? segments.map((s: FlightSegment, index: number) => ({
+          id: (index + 1).toString(),
+          from: s.origin,
+          to: s.destination,
+          date: convertToISO8601(s.date)
+        }))
+        : [{
+          id: '1',
+          from: origin,
+          to: destination,
+          date: convertToISO8601(departure),
+          ...(flightType === 'roundtrip' && {
+            returnDate: returnDate ? convertToISO8601(returnDate) : undefined
+          })
+        }],
+      adults: parsedTravelers.adults,
+      children: parsedTravelers.children,
+      infants: parsedTravelers.infants,
+      cabinClass: flightClass,
+      directFlight: false, // You can make this configurable if needed
+      calendarSearch: false // You can make this configurable if needed
+    };
+
     try {
       // api call
       const response = await axios.post(
-        `/api/search-flights?origin=${originParam}&destination=${destinationParam}&departureDate=${convertToISO8601(
-          departureDate
-        )}${returnDate ? `&returnDate=${returnDate}` : ""}&travelers=${travelers.adults
-        }&flightClass=${flightClass}&tripType=${tripTypeParam}`
+        'http://localhost:3000/flights/flight-search',
+        requestData,
+        { headers: { 'Content-Type': 'application/json' } }
       );
+      console.log(response.data, "here is my data")
       // Destructure the flights array
       const allFlights =
-        response?.data?.flights.map((flight: any) => {
+        response?.data?.data.map((flight: any) => {
           return {
             ...flight,
             itineraries: [...flight.itineraries_formated],
@@ -132,7 +178,7 @@ const Page: React.FC = () => {
       console.log(allFlights, "all flights test")
       // setOutboundFlights(outbound);
       // setReturnFlights(returning ? returning : []);
-      setCarriers(response?.data?.carriers);
+      setCarriers(response?.data?.filters.carriers);
       setLoading(false);
     } catch (err) {
       console.error(err);
@@ -376,8 +422,7 @@ const Page: React.FC = () => {
           nextSegment.departure.at
         );
 
-        console.log(`Stop at: ${stopAirport}`);
-        console.log(`Stop duration: ${stopDuration}`);
+
       }
     }
   };
@@ -388,7 +433,7 @@ const Page: React.FC = () => {
   return (
     <Section>
       <div className="py-20">
-        <FlightSearchForm
+        {/* <FlightSearchForm
           flights={flights}
           setFlights={setFlights}
           setLoading={setLoading}
@@ -405,7 +450,7 @@ const Page: React.FC = () => {
           setReturnDate={setReturnDate}
           setTravelers={setTravelers}
           setFlightClass={setFlightClass}
-        />
+        /> */}
         <div className="flex flex-wrap justify-between gap-5 py-10">
           <div className="lg:w-1/4 w-full ">
             <div className="flex justify-between flex-wrap px-3 items-center gap-5 ">

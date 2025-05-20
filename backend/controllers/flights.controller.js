@@ -25,8 +25,11 @@ const formatTime = (isoTime) => {
 };
 
 export const flightOffers = async (req, res, next) => {
-    console.log(req.body,"requst body")
+    console.log("Route hit");             // Confirm the route is called
+    console.log("Headers:", req.headers); // Confirm Content-Type is correct
+    console.log("Body:", req.body);       // This is your main check
     try {
+        console.log(req.body, "requst bodysss")
         const { destinations, adults, children, infants, cabinClass, directFlight } = req.body;
 
         // Validate and prepare request to Amadeus API
@@ -241,7 +244,7 @@ export const flightOffers = async (req, res, next) => {
         res.status(200).json({
             success: true,
             data: formattedResponse,
-            res: response.data
+            filters: response.data.dictionaries
         });
 
     } catch (error) {

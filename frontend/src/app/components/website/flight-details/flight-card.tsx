@@ -208,7 +208,7 @@ const FlightCard = ({
 
                     </div> */}
           <div className="lg:w-3/4 w-full bg-[#98FFC80A] p-5 text-center md:text-start">
-            {flight?.itineraries.map((itinerary: any, index: number) => (
+            {flight?.itineraries_formated.map((itinerary: any, index: number) => (
               <div>
                 <div className="flex justify-between w-full items-center flex-wrap gap-4 mb-4">
                   <div className="flex gap-2 items-center">
@@ -295,12 +295,12 @@ const FlightCard = ({
                         <span className="text-sm text-grayDark">
                           +
                           {calculateSimpleDayDifference(
-                            itinerary.segments[0].departure_date_time.split(
+                            itinerary.segments[0].departure.at.split(
                               "T"
                             )[0],
                             itinerary.segments[
                               itinerary.segments.length - 1
-                            ].departure_date_time.split("T")[0]
+                            ].departure.at.split("T")[0]
                           )}
                         </span>
                       </span>
@@ -308,14 +308,14 @@ const FlightCard = ({
                         {
                           itinerary.segments[
                             itinerary.segments.length - 1
-                          ].departure_date_time?.split("T")[0]
+                          ].departure.at?.split("T")[0]
                         }
                       </span>
                     </div>
                     <div className="flex flex-col items-center">
                       <p className="">
                         {itinerary.toLocation
-                          ? itinerary.toLocation.name
+                          ? itinerary.toLocation
                           : "Unknown Airport"}
                         {itinerary.toName || "Unknown Airport"}
                       </p>

@@ -23,6 +23,7 @@ export async function POST(request) {
         return `${year}-${month}-${day}`;
     }
 
+    console.log(request.body,"body")
 
     const flightFormData = {
         "destinations": [
