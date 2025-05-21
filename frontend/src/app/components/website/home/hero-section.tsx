@@ -70,11 +70,15 @@ const HeroSection = () => {
   const [searchTermTo, setSearchTermTo] = useState("");
   const [rooms, setRooms] = useState<Room[]>([{ id: 1, adults: 1, children: 0 }]);
 
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
   const [flightFormData, setFlightFormData] = useState<FlightFormData>({
     origin: "",
     destination: "",
-    departure: new Date(),
-    returnDate: new Date(),
+    departure: today,
+    returnDate: tomorrow,
     travelers: {
       adults,
       children,
@@ -348,7 +352,7 @@ const HeroSection = () => {
                         className="border-b py-2 border-bordered"
                         value={flightFormData.returnDate}
                         minDate={flightFormData.departure}
-                        onChange={(date) => handleFlightChange("return", date)}
+                        onChange={(date) => handleFlightChange("returnDate", date)}
                       />
                     )}
                   </div>

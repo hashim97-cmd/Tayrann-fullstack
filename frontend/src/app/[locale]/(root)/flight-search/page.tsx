@@ -119,16 +119,24 @@ const Page: React.FC = () => {
           from: s.origin,
           to: s.destination,
           date: convertToISO8601(s.date)
-        }))
-        : [{
-          id: '1',
+        })) : flightType === 'roundtrip' ? [{
+          id: 1,
           from: origin,
           to: destination,
           date: convertToISO8601(departure),
-          ...(flightType === 'roundtrip' && {
-            returnDate: returnDate ? convertToISO8601(returnDate) : undefined
-          })
-        }],
+        }, {
+          id: 2,
+          from: destination,
+          to: origin,
+          date: returnDate ? convertToISO8601(returnDate) : undefined,
+        }]
+          :
+          [{
+            id: '1',
+            from: origin,
+            to: destination,
+            date: convertToISO8601(departure),
+          }],
       adults: parsedTravelers.adults,
       children: parsedTravelers.children,
       infants: parsedTravelers.infants,

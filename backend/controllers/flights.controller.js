@@ -25,9 +25,7 @@ const formatTime = (isoTime) => {
 };
 
 export const flightOffers = async (req, res, next) => {
-    console.log("Route hit");             // Confirm the route is called
-    console.log("Headers:", req.headers); // Confirm Content-Type is correct
-    console.log("Body:", req.body);       // This is your main check
+
     try {
         console.log(req.body, "requst bodysss")
         const { destinations, adults, children, infants, cabinClass, directFlight } = req.body;
