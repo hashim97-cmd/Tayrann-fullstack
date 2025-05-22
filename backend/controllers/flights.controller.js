@@ -1,6 +1,7 @@
 import { ApiError } from "../utils/apiError.js";
 import { getAmadeusToken } from "../utils/amadeus-token.js";
 import axios from "axios";
+import Airport from "../models/airport.model.js";
 
 // Helper function to format duration from ISO format (PT1H50M) to readable format
 const formatDuration = (isoDuration) => {
@@ -8,26 +9,25 @@ const formatDuration = (isoDuration) => {
     const hours = matches[1] ? parseInt(matches[1]) : 0;
     const minutes = matches[2] ? parseInt(matches[2]) : 0;
 
-    if (hours > 0 && minutes > 0) return `${hours} hours ${minutes} minutes`;
-    if (hours > 0) return `${hours} hours`;
-    return `${minutes} minutes`;
+    if (hours > 0 && minutes > 0) return `${hours}h ${minutes}m`;
+    if (hours > 0) return `${hours}h`;
+    return `${minutes}m`;
 };
 
 // Helper function to format time (2025-05-28T16:30:00) to 04:30 pm
 const formatTime = (isoTime) => {
     const date = new Date(isoTime);
     let hours = date.getHours();
-    const minutes = date.getMinutes();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
     const ampm = hours >= 12 ? 'pm' : 'am';
     hours = hours % 12;
     hours = hours ? hours : 12; // Convert 0 to 12
-    return `${hours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+    return `${hours}:${minutes} ${ampm}`;
 };
 
 export const flightOffers = async (req, res, next) => {
-
     try {
-        console.log(req.body, "requst bodysss")
+        const lang = req.get('lng') || 'en'; // Default to English if no language header
         const { destinations, adults, children, infants, cabinClass, directFlight } = req.body;
 
         // Validate and prepare request to Amadeus API
@@ -89,6 +89,33 @@ export const flightOffers = async (req, res, next) => {
             }
         );
 
+        // Extract all unique airport codes from the response
+        const airportCodes = new Set();
+        response.data.data.forEach(offer => {
+            offer.itineraries.forEach(itinerary => {
+                itinerary.segments.forEach(segment => {
+                    airportCodes.add(segment.departure.iataCode);
+                    airportCodes.add(segment.arrival.iataCode);
+                });
+            });
+        });
+
+        // Fetch airport details for all unique codes
+        const airports = await Airport.find({
+            airport_code: { $in: Array.from(airportCodes) }
+        });
+
+        // Create a map of airport code to localized details
+        const airportMap = airports.reduce((map, airport) => {
+            map[airport.airport_code] = {
+                id: airport._id,
+                name: lang === 'ar' ? airport.name_ar : airport.name_en,
+                city: lang === 'ar' ? airport.airport_city_ar : airport.airport_city_en,
+                country: lang === 'ar' ? airport.country_ar : airport.country_en
+            };
+            return map;
+        }, {});
+
         // Transform Amadeus response to your desired format
         const formattedResponse = response.data.data.map((offer, index) => {
             // Create mapping string (CAI-MED|2025-05-28|XY-575||MED-CAI|2025-05-29|XY-576)
@@ -97,69 +124,110 @@ export const flightOffers = async (req, res, next) => {
                 return `${segment.departure.iataCode}-${segment.arrival.iataCode}|${segment.departure.at.split('T')[0]}|${segment.carrierCode}-${segment.number}`;
             }).join('||');
 
-            // Prepare itineraries_formated
+            // Prepare itineraries_formated with localized airport info
             const itineraries_formated = offer.itineraries.map((itinerary, i) => {
-                const segment = itinerary.segments[0];
-                return {
-                    duration: formatDuration(itinerary.duration),
-                    fromLocation: segment.departure.iataCode,
-                    toLocation: segment.arrival.iataCode,
-                    fromName: `${segment.departure.iataCode} Airport`, // You might want to lookup actual names
-                    toName: `${segment.arrival.iataCode} Airport`,
-                    fromAirport: {
-                        id: 0, // You would need to lookup these
+                // Process all segments, not just the first one
+                const segments = itinerary.segments.map((segment, segmentIndex) => {
+                    const departureAirport = airportMap[segment.departure.iataCode] || {
+                        id: segment.departure.iataCode,
                         name: `${segment.departure.iataCode} Airport`,
-                        code: segment.departure.iataCode,
-                        city: `${segment.departure.iataCode} - COUNTRY`
-                    },
-                    toAirport: {
-                        id: 0,
+                        city: segment.departure.iataCode,
+                        country: ''
+                    };
+
+                    const arrivalAirport = airportMap[segment.arrival.iataCode] || {
+                        id: segment.arrival.iataCode,
                         name: `${segment.arrival.iataCode} Airport`,
-                        code: segment.arrival.iataCode,
-                        city: `${segment.arrival.iataCode} - COUNTRY`
-                    },
-                    departure: {
-                        departure_date_time: segment.departure.at,
-                        departure_date: segment.departure.at.split('T')[0],
-                        departure_time: formatTime(segment.departure.at),
-                        departure_terminal: segment.departure.terminal || null,
-                        arrival_date_time: segment.arrival.at,
-                        arrival_date: segment.arrival.at.split('T')[0],
-                        arrival_time: formatTime(segment.arrival.at),
-                        arrival_terminal: segment.arrival.terminal || null,
-                        stops: segment.numberOfStops,
-                        duration: formatDuration(segment.duration),
-                        flightNumber: segment.number,
-                        airlineCode: segment.carrierCode,
-                        airlineName: segment.carrierCode, // You might want to lookup the actual name
-                        image: `https://assets.wego.com/image/upload/h_240,c_fill,f_auto,fl_lossy,q_auto:best,g_auto/v20240602/flights/airlines_square/${segment.carrierCode}.png`
-                    },
-                    segments: [{
-                        ...segment, // Include all segment details
+                        city: segment.arrival.iataCode,
+                        country: ''
+                    };
+
+                    // Calculate stop duration if this isn't the first segment
+                    let stopDuration = null;
+                    if (segmentIndex > 0) {
+                        const prevSegment = itinerary.segments[segmentIndex - 1];
+                        const arrivalTime = new Date(prevSegment.arrival.at);
+                        const departureTime = new Date(segment.departure.at);
+                        const durationMinutes = (departureTime - arrivalTime) / (1000 * 60);
+
+                        const hours = Math.floor(durationMinutes / 60);
+                        const minutes = Math.floor(durationMinutes % 60);
+                        stopDuration = `${hours}h ${minutes}m`;
+                    }
+
+                    return {
+                        ...segment,
                         departure_date: segment.departure.at.split('T')[0],
                         departure_time: formatTime(segment.departure.at),
                         arrival_date: segment.arrival.at.split('T')[0],
                         arrival_time: formatTime(segment.arrival.at),
                         duration: formatDuration(segment.duration),
-                        fromName: `${segment.departure.iataCode} Airport`,
-                        toName: `${segment.arrival.iataCode} Airport`,
+                        stopDuration,
+                        stopLocation: segmentIndex > 0 ? departureAirport.name : null,
+                        fromName: departureAirport.name,
+                        toName: arrivalAirport.name,
                         fromAirport: {
-                            id: 0,
-                            name: `${segment.departure.iataCode} Airport`,
+                            id: departureAirport.id,
+                            name: departureAirport.name,
                             code: segment.departure.iataCode,
-                            city: `${segment.departure.iataCode} - COUNTRY`
+                            city: departureAirport.city,
+                            country: departureAirport.country
                         },
                         toAirport: {
-                            id: 0,
-                            name: `${segment.arrival.iataCode} Airport`,
+                            id: arrivalAirport.id,
+                            name: arrivalAirport.name,
                             code: segment.arrival.iataCode,
-                            city: `${segment.arrival.iataCode} - COUNTRY`
+                            city: arrivalAirport.city,
+                            country: arrivalAirport.country
                         },
-                        class: offer.travelerPricings[0].fareDetailsBySegment[i].class,
+                        class: offer.travelerPricings[0].fareDetailsBySegment[i]?.class || 'ECONOMY',
                         image: `https://assets.wego.com/image/upload/h_240,c_fill,f_auto,fl_lossy,q_auto:best,g_auto/v20240602/flights/airlines_square/${segment.carrierCode}.png`
-                    }]
+                    };
+                });
+
+                // Get first and last segments for overall itinerary info
+                const firstSegment = segments[0];
+                const lastSegment = segments[segments.length - 1];
+
+                return {
+                    duration: formatDuration(itinerary.duration),
+                    fromLocation: firstSegment.departure.iataCode,
+                    toLocation: lastSegment.arrival.iataCode,
+                    fromName: firstSegment.fromName,
+                    toName: lastSegment.toName,
+                    fromAirport: firstSegment.fromAirport,
+                    toAirport: lastSegment.toAirport,
+                    departure: {
+                        departure_date_time: firstSegment.departure.at,
+                        departure_date: firstSegment.departure_date,
+                        departure_time: firstSegment.departure_time,
+                        departure_terminal: firstSegment.departure.terminal || null,
+                        arrival_date_time: lastSegment.arrival.at,
+                        arrival_date: lastSegment.arrival_date,
+                        arrival_time: lastSegment.arrival_time,
+                        arrival_terminal: lastSegment.arrival.terminal || null,
+                        stops: segments.length - 1, // Total stops is segments count - 1
+                        duration: formatDuration(itinerary.duration),
+                        flightNumber: firstSegment.number,
+                        airlineCode: firstSegment.carrierCode,
+                        airlineName: firstSegment.carrierCode,
+                        image: firstSegment.image
+                    },
+                    segments: segments,
+                    stops: segments.length > 1 ? segments.slice(1).map((seg, idx) => ({
+                        airport: seg.fromAirport,
+                        arrivalTime: segments[idx].arrival_time,
+                        departureTime: seg.departure_time,
+                        duration: seg.stopDuration,
+                        airline: seg.carrierCode
+                    })) : []
                 };
             });
+            // Get airline codes for filters
+            const airlineCodes = [...new Set(
+                offer.itineraries.flatMap(it =>
+                    it.segments.map(seg => seg.carrierCode)
+                ))];
 
             // Prepare the complete response object
             return {
@@ -169,17 +237,19 @@ export const flightOffers = async (req, res, next) => {
                 source: offer.source,
                 fromLocation: offer.itineraries[0].segments[0].departure.iataCode,
                 toLocation: offer.itineraries.slice(-1)[0].segments[0].arrival.iataCode,
-                fromName: `${offer.itineraries[0].segments[0].departure.iataCode} Airport`,
-                toName: `${offer.itineraries.slice(-1)[0].segments[0].arrival.iataCode} Airport`,
+                fromName: airportMap[offer.itineraries[0].segments[0].departure.iataCode]?.name ||
+                    `${offer.itineraries[0].segments[0].departure.iataCode} Airport`,
+                toName: airportMap[offer.itineraries.slice(-1)[0].segments[0].arrival.iataCode]?.name ||
+                    `${offer.itineraries.slice(-1)[0].segments[0].arrival.iataCode} Airport`,
                 type: offer.oneWay ? "OneWay" : "RoundTrip",
                 adults: adults,
                 children: children || 0,
                 infants: infants || 0,
                 numberOfBookableSeats: offer.numberOfBookableSeats,
-                airline: offer.itineraries[0].segments[0].carrierCode,
-                airlineName: offer.itineraries[0].segments[0].carrierCode, // Lookup actual name
+                airline: airlineCodes[0],
+                airlineName: airlineCodes[0], // Lookup actual name if needed
                 flightNumber: offer.itineraries[0].segments[0].number,
-                stops: offer.itineraries.map(it => it.segments[0].numberOfStops),
+                stops: Math.max(...offer.itineraries.map(it => it.segments.length - 1)),
                 original_price: offer.price.total,
                 price: parseFloat(offer.price.total),
                 currency: offer.price.currency,
@@ -233,8 +303,8 @@ export const flightOffers = async (req, res, next) => {
                     refund: offer.fareRules?.rules?.find(r => r.category === "REFUND")?.notApplicable ? "Not Applicable" : "Available",
                     revalidation: offer.fareRules?.rules?.find(r => r.category === "REVALIDATION")?.notApplicable ? "Not Applicable" : "Available"
                 },
-                origins: offer.itineraries.map(it => it.segments[0].departure.iataCode),
-                destinations: offer.itineraries.map(it => it.segments[0].arrival.iataCode),
+                origins: [...new Set(offer.itineraries.map(it => it.segments[0].departure.iataCode))],
+                destinations: [...new Set(offer.itineraries.map(it => it.segments[0].arrival.iataCode))],
                 originalResponse: offer // Include the original response for reference
             };
         });
@@ -242,7 +312,13 @@ export const flightOffers = async (req, res, next) => {
         res.status(200).json({
             success: true,
             data: formattedResponse,
-            filters: response.data.dictionaries
+            originalResponse: response.data.data,
+            filters: {
+                carriers: response.data.dictionaries?.carriers || {},
+                aircraft: response.data.dictionaries?.aircraft || {},
+                currencies: response.data.dictionaries?.currencies || {},
+                locations: response.data.dictionaries?.locations || {}
+            }
         });
 
     } catch (error) {

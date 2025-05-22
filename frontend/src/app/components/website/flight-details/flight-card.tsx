@@ -235,7 +235,7 @@ const FlightCard = ({
                     <div className="py-1">
                       <p className="text-sm">
                         {new Date(
-                          itinerary.segments[0].departure_date_time
+                          itinerary.segments[0].departure.at
                         ).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -244,14 +244,14 @@ const FlightCard = ({
                       </p>
                       <span className="text-sm text-grayDark">
                         {
-                          itinerary.segments[0].departure_date_time?.split(
+                          itinerary.segments[0].departure.at?.split(
                             "T"
                           )[0]
                         }
                       </span>
                     </div>
                     <div>
-                      <p className="">
+                      <p className="text-sm">
                         {itinerary.fromName || "Unknown Airport"}
                       </p>
                       <span className="text-sm text-grayDark">
@@ -262,7 +262,7 @@ const FlightCard = ({
 
                   <div className="flex flex-col justify-center items-center relative">
                     <p className="py-0">
-                      {calculateTotalDurationShortNew(itinerary.segments)}
+                      {itinerary.duration}
                     </p>
                     <Image src={route} alt="Flight Route" />
                     {/* Number of stops and hover effect for stop details */}
@@ -285,7 +285,7 @@ const FlightCard = ({
                           {new Date(
                             itinerary.segments[
                               itinerary.segments.length - 1
-                            ].arrival_date_time
+                            ].arrival.at
                           ).toLocaleTimeString([], {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -295,12 +295,12 @@ const FlightCard = ({
                         <span className="text-sm text-grayDark">
                           +
                           {calculateSimpleDayDifference(
-                            itinerary.segments[0].departure.at.split(
+                            itinerary.segments[0].arrival.at.split(
                               "T"
                             )[0],
                             itinerary.segments[
                               itinerary.segments.length - 1
-                            ].departure.at.split("T")[0]
+                            ].arrival.at.split("T")[0]
                           )}
                         </span>
                       </span>
@@ -308,15 +308,13 @@ const FlightCard = ({
                         {
                           itinerary.segments[
                             itinerary.segments.length - 1
-                          ].departure.at?.split("T")[0]
+                          ].arrival.at?.split("T")[0]
                         }
                       </span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <p className="">
-                        {itinerary.toLocation
-                          ? itinerary.toLocation
-                          : "Unknown Airport"}
+                      <p className="text-sm">
+              
                         {itinerary.toName || "Unknown Airport"}
                       </p>
                       <span className="text-sm text-grayDark text-center ">
@@ -388,7 +386,7 @@ const FlightCard = ({
                         <div className="flex flex-col text-center">
                           <p className=" font-semibold">
                             {new Date(
-                              segment.departure_time
+                              segment.departure.at
                             ).toLocaleTimeString([], {
                               hour: "2-digit",
                               minute: "2-digit",
@@ -418,7 +416,7 @@ const FlightCard = ({
                         </div>
                         <div className="flex flex-col items-center">
                           <p className=" font-semibold">
-                            {new Date(segment.arrival_time).toLocaleTimeString(
+                            {new Date(segment.arrival.at).toLocaleTimeString(
                               [],
                               {
                                 hour: "2-digit",

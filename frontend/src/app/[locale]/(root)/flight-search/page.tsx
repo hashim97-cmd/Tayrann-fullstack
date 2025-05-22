@@ -150,7 +150,7 @@ const Page: React.FC = () => {
       const response = await axios.post(
         'http://localhost:3000/flights/flight-search',
         requestData,
-        { headers: { 'Content-Type': 'application/json' } }
+        { headers: { 'Content-Type': 'application/json', "lng": `${locale}` } }
       );
       console.log(response.data, "here is my data")
       // Destructure the flights array
