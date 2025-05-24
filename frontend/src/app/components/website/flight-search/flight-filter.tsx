@@ -65,14 +65,14 @@ const FlightFilter: React.FC<FlightFilterProps> = ({
         { key: "morning", label: t("departuretime.morning") },
         { key: "afternoon", label: t("departuretime.afternoon") },
         { key: "evening", label: t("departuretime.evening") },
-      ];
+    ];
 
-      const stopsOptions = [
+    const stopsOptions = [
         { name: t("stops.any") },
         { name: t("stops.direct") },
         { name: t("stops.one") },
         { name: t("stops.two_or_more") },
-      ];
+    ];
 
     const baggageOptions = [
         "All baggage options",
@@ -97,7 +97,7 @@ const FlightFilter: React.FC<FlightFilterProps> = ({
                         )}
                     </span>
                 </div>
-                {/* useEffect here */} 
+                {/* useEffect here */}
                 {isExpanded.departureTime && (
                     <div className="grid grid-cols-2 gap-4 mt-2">
                         {departureTimeOptions.map((time) => (
@@ -129,7 +129,7 @@ const FlightFilter: React.FC<FlightFilterProps> = ({
                         unit="SAR"
                         value={priceRange}
                         onChange={(newValue) => {
-                            console.log(newValue,"new Valueeeeeeeeeeeeeeeeeeeee");
+                            console.log(newValue, "new Valueeeeeeeeeeeeeeeeeeeee");
                             setPriceRange(newValue);
                             onPriceChange(newValue[1]); // Pass max value to the parent component
                         }}
@@ -140,18 +140,23 @@ const FlightFilter: React.FC<FlightFilterProps> = ({
             {/* Stops Filter */}
             <CheckboxGroup
                 title={t("stops.stopsheading")}
-                options={stopsOptions.map((label) => ( label ))}
+                options={stopsOptions.map((label) => (label))}
                 selectedOptions={filterStops}
                 onChange={onStopsChange}
             />
 
-            {/* Airlines Filter */}
-            {airlines && <CheckboxGroup
-                title={t("airlines")}
-                options={airlines?.map((airline: any) => ( airline ))}
-                selectedOptions={filterAirlines}
-                onChange={onAirlinesChange}
-            />}
+            {airlines && airlines.length > 0 && (
+                <CheckboxGroup
+                    title={t("airlines")}
+                    options={airlines.map((airline: any) => ({
+                        code: airline.code || airline,
+                        name: airline.name || airline,
+                        image: airline.image
+                    }))}
+                    selectedOptions={filterAirlines}
+                    onChange={onAirlinesChange}
+                />
+            )}
 
             {/* Baggage Filter */}
             {/* <CheckboxGroup

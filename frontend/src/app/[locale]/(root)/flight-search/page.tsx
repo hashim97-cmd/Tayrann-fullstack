@@ -24,8 +24,9 @@ import { FlightSegment } from "@/app/components/website/home/hero-section";
 // import { changeTripType } from "@/redux/flights/flightSlice";
 
 export interface AirlineCarrier {
-  code: string;
-  name: string;
+  airLineCode: string;
+  airLineName: string;
+  airlineNameAr: string;
   image: string;
 }
 
@@ -271,19 +272,18 @@ const Page: React.FC = () => {
     // Filter by airlines
     const airlineCode = flight.airline?.[0];
     // Filter by airlines
-    // Filter by airlines
     const isAirlinesValid =
       filters.airlines.length === 0 || // No airline filters applied
       filters.airlines.some((selectedAirline: string) => {
         // Find the carrier for this flight
-        const carrier = carriers.find((c) => c.code === flight.airline);
+        const carrier = carriers.find((c) => c.airLineCode === flight.airline);
 
         // Check if flight's airline matches selected filter by code or name
         return (
           flight.airline === selectedAirline || // Direct code match
           (carrier &&
-            (carrier.code === selectedAirline ||
-              carrier.name === selectedAirline))
+            (carrier.airLineCode === selectedAirline ||
+              carrier.airLineName === selectedAirline))
         );
       });
     console.log(isPriceValid, isStopsValid, isDepartureTimeValid, isAirlinesValid, "all filters");

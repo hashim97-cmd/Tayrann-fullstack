@@ -2,6 +2,7 @@ import { ApiError } from "../utils/apiError.js";
 import { getAmadeusToken } from "../utils/amadeus-token.js";
 import axios from "axios";
 import Airport from "../models/airport.model.js";
+import Airline from "../models/Airline.model.js"
 
 // Helper function to format duration from ISO format (PT1H50M) to readable format
 const formatDuration = (isoDuration) => {
@@ -88,6 +89,20 @@ export const flightOffers = async (req, res, next) => {
                 }
             }
         );
+
+        const carriersCodes = Object.keys(response.data.dictionaries?.carriers);
+
+        const airlineDocs = await Airline.find({
+            airLineCode: { $in: carriersCodes }
+        });
+
+        const airlineMap = airlineDocs.map((airline, index) => {
+            return {
+                ...airline._doc,
+                name: lang === "en" ? airline._doc.airLineName : airline._doc.airlineNameAr,
+                image: `https://assets.wego.com/image/upload/h_240,c_fill,f_auto,fl_lossy,q_auto:best,g_auto/v20240602/flights/airlines_square/${airline.airLineCode}.png`
+            }
+        });
 
         // Extract all unique airport codes from the response
         const airportCodes = new Set();
@@ -312,9 +327,8 @@ export const flightOffers = async (req, res, next) => {
         res.status(200).json({
             success: true,
             data: formattedResponse,
-            originalResponse: response.data.data,
             filters: {
-                carriers: response.data.dictionaries?.carriers || {},
+                carriers: airlineMap || {},
                 aircraft: response.data.dictionaries?.aircraft || {},
                 currencies: response.data.dictionaries?.currencies || {},
                 locations: response.data.dictionaries?.locations || {}
