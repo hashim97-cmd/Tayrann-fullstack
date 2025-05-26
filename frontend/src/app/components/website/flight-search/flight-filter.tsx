@@ -68,10 +68,10 @@ const FlightFilter: React.FC<FlightFilterProps> = ({
     ];
 
     const stopsOptions = [
-        { name: t("stops.any") },
-        { name: t("stops.direct") },
-        { name: t("stops.one") },
-        { name: t("stops.two_or_more") },
+        { name: t("stops.any"), code :  "Any number of stops" },
+        { name: t("stops.direct"),  code : "Direct flights only" },
+        { name: t("stops.one"), code :  "1 stop" },
+        { name: t("stops.two_or_more"), code : "2 stops or more"  },
     ];
 
     const baggageOptions = [
@@ -129,7 +129,6 @@ const FlightFilter: React.FC<FlightFilterProps> = ({
                         unit="SAR"
                         value={priceRange}
                         onChange={(newValue) => {
-                            console.log(newValue, "new Valueeeeeeeeeeeeeeeeeeeee");
                             setPriceRange(newValue);
                             onPriceChange(newValue[1]); // Pass max value to the parent component
                         }}
@@ -140,7 +139,7 @@ const FlightFilter: React.FC<FlightFilterProps> = ({
             {/* Stops Filter */}
             <CheckboxGroup
                 title={t("stops.stopsheading")}
-                options={stopsOptions.map((label) => (label))}
+                options={stopsOptions.map((option) => (option))}
                 selectedOptions={filterStops}
                 onChange={onStopsChange}
             />
@@ -149,7 +148,7 @@ const FlightFilter: React.FC<FlightFilterProps> = ({
                 <CheckboxGroup
                     title={t("airlines")}
                     options={airlines.map((airline: any) => ({
-                        code: airline.code || airline,
+                        code: airline.airLineCode || airline,
                         name: airline.name || airline,
                         image: airline.image
                     }))}

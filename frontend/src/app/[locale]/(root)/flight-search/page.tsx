@@ -17,11 +17,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { AiOutlineClose } from "react-icons/ai";
 import { FaPlaneDeparture, FaPlaneArrival } from "react-icons/fa";
-import { clearFlightData, removeFlightData } from "@/redux/flights/flightSlice";
+import { clearFlightData, removeFlightData, setSearchData } from "@/redux/flights/flightSlice";
 import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import { FlightSegment } from "@/app/components/website/home/hero-section";
 // import { changeTripType } from "@/redux/flights/flightSlice";
+import { getPersistedFlightData } from '@/utils/flightStorage';
+
 
 export interface AirlineCarrier {
   airLineCode: string;
@@ -34,6 +36,7 @@ const Page: React.FC = () => {
   const locale = useLocale();
   const t = useTranslations("filters");
   const searchParamsData = useSelector((state: any) => state.flightData.searchParamsData);
+  const hasHydrated = useSelector((state: any) => state._persist?.rehydrated);
 
   // Directly destructure the properties (without Data suffix)
   const {
@@ -46,6 +49,8 @@ const Page: React.FC = () => {
     flightClass,
     segments
   } = searchParamsData || {};
+
+  console.log(searchParamsData, "first log for the data in store")
 
   // For travelers, you might need to parse if it's stored as an object
   const parsedTravelers = typeof travelers === 'string'
@@ -110,6 +115,15 @@ const Page: React.FC = () => {
     return isoString;
   }
 
+  useEffect(() => {
+    if (!hasHydrated) return;
+
+    const persistedData = getPersistedFlightData();
+    if (persistedData?.searchParamsData) {
+      dispatch(setSearchData(persistedData.searchParamsData));
+    }
+  }, [dispatch, hasHydrated]);
+
 
   const getFlights = async () => {
     setLoading(true);
@@ -153,7 +167,6 @@ const Page: React.FC = () => {
         requestData,
         { headers: { 'Content-Type': 'application/json', "lng": `${locale}` } }
       );
-      console.log(response.data, "here is my data")
       // Destructure the flights array
       const allFlights =
         response?.data?.data.map((flight: any) => {
@@ -196,10 +209,10 @@ const Page: React.FC = () => {
   };
 
   useEffect(() => {
-    if (true) {
+    if (searchParamsData?.origin && searchParamsData?.destination) {
       getFlights();
     }
-  }, []);
+  }, [searchParamsData]);
 
   // useEffect(() => {
   //   if (outboundFlights) {
@@ -248,9 +261,9 @@ const Page: React.FC = () => {
     // Filter by departure time
     const isDepartureTimeValid =
       filters.departureTime === "any" || // No time filters applied
-      flight.itineraries.some((itinerary: any) =>
+      flight.itineraries_formated.some((itinerary: any) =>
         itinerary.segments.some((segment: any) => {
-          const departureDate = new Date(segment?.departure_date_time);
+          const departureDate = new Date(segment?.departure.at);
           const departureHour = departureDate.getHours();
 
           // Check for different time slots based on selected filter

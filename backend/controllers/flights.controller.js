@@ -343,3 +343,7 @@ export const flightOffers = async (req, res, next) => {
         ));
     }
 };
+
+export const flightPricing = async (req,res,next) => {
+    
+}

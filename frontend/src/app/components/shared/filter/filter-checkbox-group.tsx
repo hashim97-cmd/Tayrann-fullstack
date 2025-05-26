@@ -15,14 +15,17 @@ interface CheckboxGroupProps {
 }
 
 const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ title, options, selectedOptions, onChange }) => {
-    const handleCheckboxChange = (name: string) => {
-        console.log(selectedOptions,"testtttttttttttt")
-        if (selectedOptions.includes(name)) {
-            onChange(selectedOptions.filter((option) => option !== name));
+    const handleCheckboxChange = (code?: string) => {
+        if (!code) return; // or throw an error if this should never happen
+        console.log(code,"codeeeeeeeeeeeeeeee")
+
+        if (selectedOptions.includes(code)) {
+            onChange(selectedOptions.filter((option) => option !== code));
         } else {
-            onChange([...selectedOptions, name]);
+            onChange([...selectedOptions, code]);
         }
     };
+
 
     return (
         <div className="mb-4">
@@ -33,8 +36,8 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ title, options, selectedO
                         <input
                             type="checkbox"
                             className="mr-2 w-5 h-5 accent-green"
-                            checked={selectedOptions?.includes(option.name)}
-                            onChange={() => handleCheckboxChange(option.name)}
+                            checked={option.code ? selectedOptions.includes(option.code) : false}
+                            onChange={() => handleCheckboxChange(option.code)}
                         />
                         <span className="text-sm">{option.name}</span>
                         {option.image && (
