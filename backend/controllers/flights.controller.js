@@ -247,6 +247,7 @@ export const flightOffers = async (req, res, next) => {
             // Prepare the complete response object
             return {
                 mapping,
+                type: "flight-offer",
                 id: offer.id,
                 agent: "GDS",
                 source: offer.source,
@@ -256,7 +257,7 @@ export const flightOffers = async (req, res, next) => {
                     `${offer.itineraries[0].segments[0].departure.iataCode} Airport`,
                 toName: airportMap[offer.itineraries.slice(-1)[0].segments[0].arrival.iataCode]?.name ||
                     `${offer.itineraries.slice(-1)[0].segments[0].arrival.iataCode} Airport`,
-                type: offer.oneWay ? "OneWay" : "RoundTrip",
+                flightType: offer.oneWay ? "OneWay" : "RoundTrip",
                 adults: adults,
                 children: children || 0,
                 infants: infants || 0,
@@ -344,6 +345,38 @@ export const flightOffers = async (req, res, next) => {
     }
 };
 
-export const flightPricing = async (req,res,next) => {
-    
+export const flightPricing = async (req, res, next) => {
+    try {
+        const token = await getAmadeusToken();
+
+        const flightOffer = req.body;
+
+        // Correct request body format
+        const requestBody = {
+            data: {
+                type: "flight-offers-pricing",
+                flightOffers: [flightOffer.originalResponse] // Use the originalResponse and wrap it in array
+            }
+        };
+
+        const response = await axios.post(
+            "https://test.api.amadeus.com/v1/shopping/flight-offers/pricing",
+            requestBody, // Send requestBody directly, not wrapped in another object
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        res.status(200).json(response.data);
+
+    } catch (error) {
+        console.error("Amadeus API Error:", error.response?.data || error.message);
+        next(new ApiError(
+            error.response?.status || 500,
+            error.response?.data?.errors?.[0]?.detail || "Error searching for flights"
+        ));
+    }
 }

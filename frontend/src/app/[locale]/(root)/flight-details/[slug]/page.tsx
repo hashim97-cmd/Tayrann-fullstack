@@ -79,7 +79,7 @@ const FlightDetails = () => {
                     </div>
 
                     <div className="mt-8">
-                        {/* <FlightCard /> */}
+                        <FlightCard />
                     </div>
                 </div>
             </Section>

@@ -16,14 +16,14 @@ import storage from 'redux-persist/lib/storage'; // defaults to localStorage
 const dataSlice = createSlice({
   name: 'data',
   initialState: {
-    value: null, 
+    value: null,
   },
   reducers: {
     setData: (state, action) => {
-      state.value = action.payload; 
+      state.value = action.payload;
     },
     clearData: (state) => {
-      state.value = null; 
+      state.value = null;
     },
   },
 });
@@ -37,10 +37,16 @@ const persistConfig = {
   whitelist: ['flightData'], // Only persist flightData reducer
 };
 
+const flightDataPersistConfig = {
+  key: 'flightData',
+  storage,
+  whitelist: ['searchParamsData'], // Only persist searchParamsData
+};
+
 
 const rootReducer = combineReducers({
   data: dataSlice.reducer,
-  flightData: flightDataSlice.reducer
+  flightData: persistReducer(flightDataPersistConfig, flightDataSlice.reducer) // Apply persist to just flightData
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

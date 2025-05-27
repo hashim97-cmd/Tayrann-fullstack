@@ -99,7 +99,7 @@ const Page: React.FC = () => {
   const [isFlightSelected, setIsFlightSelected] = useState(false);
   const tripType = useSelector((state: any) => state.flightData.tripType);
 
-  const flightDataSlice = useSelector((state: any) => state.flightData.flights);
+  const flightDataSlice = useSelector((state: any) => state.flightData.slectedFlight);
 
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const dispatch = useDispatch();
@@ -667,19 +667,18 @@ const Page: React.FC = () => {
               </button>
             </div>
             <div className=" overflow-y-auto flex flex-col items-center gap-5 my-5">
-              {flightDataSlice &&
-                flightDataSlice?.map((flight: any) => (
+              {/* {flightDataSlice &&
                   <FlightCard
                     from={"selection"}
-                    key={flight.id}
+                    key={flightDataSlice.id}
                     isFlightSelected={isFlightSelected}
                     setIsFlightSelected={setIsFlightSelected}
                     // SetReturnFlight={SetReturnFlight}
-                    flight={flight}
+                    flight={flightDataSlice}
                     setIsSideMenuOpen={setIsSideMenuOpen}
-                    airlineName={flightDataSlice[0].airlineName}
+                    airlineName={flightDataSlice?.validatingAirlineCodes[0]}
                   />
-                ))}
+                } */}
             </div>
 
             <div className="flex justify-between items-center border-t border-t-slate-300 pt-5 mt-5">
@@ -690,10 +689,10 @@ const Page: React.FC = () => {
                 <h1 className="flex items-center gap-2">
                   <span>Totla Price:</span>
                   <span className="font-semibold text-lg">
-                    {flightDataSlice[0]?.currency}
+                    {flightDataSlice?.price.currency}
                   </span>
                   <span className="font-semibold text-lg">
-                    {flightDataSlice[0]?.price}
+                    {flightDataSlice?.price.total}
                   </span>
                 </h1>
               </div>

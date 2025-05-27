@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setData } from "@/redux/store";
 import { AirlinesData } from "@/app/data/airlines";
 import axios from "axios";
-import { addFlightData } from "@/redux/flights/flightSlice";
+import { addFlightData, selectFlight } from "@/redux/flights/flightSlice";
 import { scrollToTop } from "@/utils";
 
 const FlightCard = ({
@@ -125,27 +125,12 @@ const FlightCard = ({
     // ));
   }
 
-  const FlightOfferSearch = async (flightData: any) => {
-    // if (!isFlightSelected && tripType === "roundtrip") {
-    //   scrollToTop();
-    //   // SetReturnFlight();
-    //   setIsFlightSelected(true);
-    //   console.log("1")
-    // } else if(!isFlightSelected && returnFlights.length===0 && tripType === "oneway")
-    // {
-    //   setIsSideMenuOpen(true);
-    //   console.log("2")
-    // } else if(!isFlightSelected && tripType === "oneway"){
-    //   setIsFlightSelected(true);
-    //   setIsSideMenuOpen(true);
-    //   console.log("3")
-    // }
-    //  else {
-    //   setIsSideMenuOpen(true);
-    //   console.log("4")
-    // }
+  const FlightOfferSearch = async (flight: any) => {
+    const response = await axios.post("http://localhost:3000/flights/flight-pricing", flight);
+    const flightData = response.data.data.flightOffers[0];
+    console.log(flightData, "here is the flight data after pricing")
 
-    dispatch(addFlightData(flightData));
+    dispatch(selectFlight(flightData));
     setIsSideMenuOpen(true);
   };
 
@@ -208,7 +193,7 @@ const FlightCard = ({
 
                     </div> */}
           <div className="lg:w-3/4 w-full bg-[#98FFC80A] p-5 text-center md:text-start">
-            {flight?.itineraries_formated.map((itinerary: any, index: number) => (
+            {flight?.itineraries_formated?.map((itinerary: any, index: number) => (
               <div>
                 <div className="flex justify-between w-full items-center flex-wrap gap-4 mb-4">
                   <div className="flex gap-2 items-center">
@@ -314,7 +299,7 @@ const FlightCard = ({
                     </div>
                     <div className="flex flex-col items-center">
                       <p className="text-sm">
-              
+
                         {itinerary.toName || "Unknown Airport"}
                       </p>
                       <span className="text-sm text-grayDark text-center ">
@@ -343,7 +328,7 @@ const FlightCard = ({
                 }}
                 className="py-3 px-6 text-center text-white rounded-lg bg-green"
               >
-                {ShowBookNowText()}
+                {ShowBookNowText()}here
               </button>
             )}
 
