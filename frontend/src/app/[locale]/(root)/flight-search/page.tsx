@@ -99,7 +99,9 @@ const Page: React.FC = () => {
   const [isFlightSelected, setIsFlightSelected] = useState(false);
   const tripType = useSelector((state: any) => state.flightData.tripType);
 
-  const flightDataSlice = useSelector((state: any) => state.flightData.slectedFlight);
+  const slectedData = useSelector((state: any) => state.flightData.slectedFlight);
+  const flightDataSlice = useSelector((state: any) => state.flightData.flights);
+
 
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const dispatch = useDispatch();
@@ -541,7 +543,7 @@ const Page: React.FC = () => {
               </button>
             </div>
 
-            {flightDataSlice?.length > 0 && (
+            {/* {flightDataSlice?.length > 0 && (
               <div className=" rounded-lg p-5 bg-gray flex flex-col gap-5">
                 <div className="flex items-center justify-between">
                   <div className=" flex items-center gap-3">
@@ -570,7 +572,7 @@ const Page: React.FC = () => {
                   />
                 </div>
               </div>
-            )}
+            )} */}
 
             {flightDataSlice?.length > 0 && (
               <div className=" text-black flex py-5 items-senter justify-start gap-2">
@@ -604,9 +606,13 @@ const Page: React.FC = () => {
                 )}
                 {sortedFlights?.map((flight) => (
                   <FlightCard
+                    from="card"
                     key={flight.id}
                     flight={flight}
-                    airlineName={carriers[flight.validatingAirlineCodes[0]]}
+                    airlineName={carriers[flight.airLineName]}
+                    isFlightSelected={isFlightSelected}
+                    setIsFlightSelected={setIsFlightSelected}
+                    setIsSideMenuOpen={setIsSideMenuOpen}
                   />
                 ))}
               </div>
@@ -643,31 +649,33 @@ const Page: React.FC = () => {
         </div>
       </div>
 
-      {isSideMenuOpen && (
-        <div className="fixed inset-0 flex items-center justify-end top-0 z-[99] bg-[#00000099] h-full">
-          <div
-            className={`flex flex-col p-5 justify-between h-full w-[50%] bg-white shadow-lg transform ${isSideMenuOpen ? "translate-x-0" : "translate-x-full"
-              } transition-transform duration-300 ease-in-out`}
-          >
-            <div className="flex justify-between items-center border-b border-b-slate-300 pb-2">
-              <h2 className="text-xl text-primary font-semibold">
-                Flight details
-              </h2>
-              <button
-                onClick={() => {
-                  if (returnFlights.length === 0) {
-                    dispatch(clearFlightData());
-                  } else {
-                    dispatch(removeFlightData(1));
-                  }
-                  setIsSideMenuOpen(false);
-                }}
+      {isSideMenuOpen && 
+        
+          slectedData.map(flight => (
+            <div className="fixed inset-0 flex items-center justify-end top-0 z-[99] bg-[#00000099] h-full">
+              <div
+                className={`flex flex-col p-5 justify-between h-full w-[50%] bg-white shadow-lg transform ${isSideMenuOpen ? "translate-x-0" : "translate-x-full"
+                  } transition-transform duration-300 ease-in-out`}
               >
-                <AiOutlineClose className="text-xl text-gray-700" />
-              </button>
-            </div>
-            <div className=" overflow-y-auto flex flex-col items-center gap-5 my-5">
-              {/* {flightDataSlice &&
+                <div className="flex justify-between items-center border-b border-b-slate-300 pb-2">
+                  <h2 className="text-xl text-primary font-semibold">
+                    Flight details
+                  </h2>
+                  <button
+                    onClick={() => {
+                      if (returnFlights.length === 0) {
+                        dispatch(clearFlightData());
+                      } else {
+                        dispatch(removeFlightData(1));
+                      }
+                      setIsSideMenuOpen(false);
+                    }}
+                  >
+                    <AiOutlineClose className="text-xl text-gray-700" />
+                  </button>
+                </div>
+                <div className=" overflow-y-auto flex flex-col items-center gap-5 my-5">
+                  {/* {flightDataSlice &&
                   <FlightCard
                     from={"selection"}
                     key={flightDataSlice.id}
@@ -679,35 +687,37 @@ const Page: React.FC = () => {
                     airlineName={flightDataSlice?.validatingAirlineCodes[0]}
                   />
                 } */}
-            </div>
+                </div>
 
-            <div className="flex justify-between items-center border-t border-t-slate-300 pt-5 mt-5">
-              <div>
-                <h2 className="text-xl text-primary font-semibold">
-                  Flight details
-                </h2>
-                <h1 className="flex items-center gap-2">
-                  <span>Totla Price:</span>
-                  <span className="font-semibold text-lg">
-                    {flightDataSlice?.price.currency}
-                  </span>
-                  <span className="font-semibold text-lg">
-                    {flightDataSlice?.price.total}
-                  </span>
-                </h1>
+                <div className="flex justify-between items-center border-t border-t-slate-300 pt-5 mt-5">
+                  <div>
+                    <h2 className="text-xl text-primary font-semibold">
+                      Flight details
+                    </h2>
+                    <h1 className="flex items-center gap-2">
+                      <span>Totla Price:</span>
+                      <span className="font-semibold text-lg">
+                        {flight?.price.currency}
+                      </span>
+                      <span className="font-semibold text-lg">
+                        {flight?.price.total}
+                      </span>
+                    </h1>
+                  </div>
+                  <button
+                    onClick={() => {
+                      router.push(`/${locale}/book-now?adults=${travelersParam}`);
+                    }}
+                    className=" text-white rounded-md py-2 px-3 cursor-pointer bg-green"
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
-              <button
-                onClick={() => {
-                  router.push(`/${locale}/book-now?adults=${travelersParam}`);
-                }}
-                className=" text-white rounded-md py-2 px-3 cursor-pointer bg-green"
-              >
-                Continue
-              </button>
             </div>
-          </div>
-        </div>
-      )}
+          ))
+        }
+      
     </Section>
   );
 };

@@ -127,7 +127,7 @@ const FlightCard = ({
 
   const FlightOfferSearch = async (flight: any) => {
     const response = await axios.post("http://localhost:3000/flights/flight-pricing", flight);
-    const flightData = response.data.data.flightOffers[0];
+    const flightData = response.data.data.flightOffers;
     console.log(flightData, "here is the flight data after pricing")
 
     dispatch(selectFlight(flightData));

@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import actGetFlights from './act/actGetFlights';
 
 // Step 1: Define the type for flight data
-interface Flight {
+export interface Flight {
   origin: string;
   destination: string;
   departureDate: string;
