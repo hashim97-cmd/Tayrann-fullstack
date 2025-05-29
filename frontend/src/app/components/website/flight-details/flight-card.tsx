@@ -129,7 +129,7 @@ const FlightCard = ({
     const response = await axios.post("http://localhost:3000/flights/flight-pricing", flight);
     const flightData = response.data.data.flightOffers;
     console.log(flightData, "here is the flight data after pricing")
-
+    dispatch(addFlightData(flight));
     dispatch(selectFlight(flightData));
     setIsSideMenuOpen(true);
   };
@@ -362,7 +362,7 @@ const FlightCard = ({
 
         {isOpenDetails && (
           <div className="p-5 bg-[#f7f7f8] space-y-5">
-            {flight.itineraries.map((itinerary: any, index: number) => (
+            {flight.itineraries?.map((itinerary: any, index: number) => (
               <div key={index}>
                 {itinerary.segments.map(
                   (segment: any, segmentIndex: number) => (

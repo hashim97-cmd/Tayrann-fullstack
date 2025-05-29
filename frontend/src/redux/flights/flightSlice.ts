@@ -64,9 +64,9 @@ export const flightDataSlice = createSlice({
     addFlightData: (state, action: PayloadAction<Flight>) => {
       state.flights.push(action.payload); // Push a single flight object to the array
     },
-    setFlightData: (state, action: PayloadAction<Flight[]>) => {
-      state.flights = action.payload; // Replace the flight array with a new one
-    },
+    // setFlightData: (state, action: PayloadAction<Flight[]>) => {
+    //   state.flights = action.payload; // Replace the flight array with a new one
+    // },
     selectFlight: (state, action: PayloadAction<Flight[]>) => {
       state.slectedFlight = action.payload;
     },
@@ -101,5 +101,5 @@ export const flightDataSlice = createSlice({
   },
 });
 
-export const { addFlightData, setFlightData, selectFlight, clearFlightData, removeFlightData, changeTripType, setSearchData, clearFlightSearch } = flightDataSlice.actions;
+export const { addFlightData, selectFlight, clearFlightData, removeFlightData, changeTripType, setSearchData, clearFlightSearch } = flightDataSlice.actions;
 export default flightDataSlice.reducer;

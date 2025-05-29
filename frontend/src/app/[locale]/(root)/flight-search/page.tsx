@@ -50,7 +50,6 @@ const Page: React.FC = () => {
     segments
   } = searchParamsData || {};
 
-  console.log(searchParamsData, "first log for the data in store")
 
   // For travelers, you might need to parse if it's stored as an object
   const parsedTravelers = typeof travelers === 'string'
@@ -211,10 +210,20 @@ const Page: React.FC = () => {
   };
 
   useEffect(() => {
-    if (searchParamsData?.origin && searchParamsData?.destination) {
+    return () => {
+      dispatch(clearFlightData()); // ✅ Dispatch cleanup during unmount
+    };
+  }, []);
+
+  useEffect(() => {
+    const isOneWayOrRoundTrip = searchParamsData?.origin && searchParamsData?.destination;
+    const isMultiCity = Array.isArray(searchParamsData?.segments) && searchParamsData.segments.length > 0;
+
+    if (isOneWayOrRoundTrip || isMultiCity) {
       getFlights();
     }
   }, [searchParamsData]);
+
 
   // useEffect(() => {
   //   if (outboundFlights) {
@@ -449,6 +458,7 @@ const Page: React.FC = () => {
       }
     }
   };
+  console.log(flightDataSlice, "444444444444444444444")
 
   //@ts-ignore
   displayFlightDetails(flights[0]?.segments);
@@ -574,7 +584,7 @@ const Page: React.FC = () => {
               </div>
             )} */}
 
-            {flightDataSlice?.length > 0 && (
+            {/* {flightDataSlice?.length > 0 && (
               <div className=" text-black flex py-5 items-senter justify-start gap-2">
                 <PiAirplaneTakeoffThin className=" rotate-270" size={40} />
                 <div className="flex flex-col items-start">
@@ -587,7 +597,7 @@ const Page: React.FC = () => {
                   </p>
                 </div>
               </div>
-            )}
+            )} */}
 
             {loading && <CustomProgressBar />}
 
@@ -649,75 +659,75 @@ const Page: React.FC = () => {
         </div>
       </div>
 
-      {isSideMenuOpen && 
-        
-          slectedData.map(flight => (
-            <div className="fixed inset-0 flex items-center justify-end top-0 z-[99] bg-[#00000099] h-full">
-              <div
-                className={`flex flex-col p-5 justify-between h-full w-[50%] bg-white shadow-lg transform ${isSideMenuOpen ? "translate-x-0" : "translate-x-full"
-                  } transition-transform duration-300 ease-in-out`}
-              >
-                <div className="flex justify-between items-center border-b border-b-slate-300 pb-2">
-                  <h2 className="text-xl text-primary font-semibold">
-                    Flight details
-                  </h2>
-                  <button
-                    onClick={() => {
-                      if (returnFlights.length === 0) {
-                        dispatch(clearFlightData());
-                      } else {
-                        dispatch(removeFlightData(1));
-                      }
-                      setIsSideMenuOpen(false);
-                    }}
-                  >
-                    <AiOutlineClose className="text-xl text-gray-700" />
-                  </button>
-                </div>
-                <div className=" overflow-y-auto flex flex-col items-center gap-5 my-5">
-                  {/* {flightDataSlice &&
+      {isSideMenuOpen &&
+        slectedData.map(selectedFlight => (
+          <div className="fixed inset-0 flex items-center justify-end top-0 z-[99] bg-[#00000099] h-full">
+            <div
+              className={`flex flex-col p-5 justify-between h-full w-[50%] bg-white shadow-lg transform ${isSideMenuOpen ? "translate-x-0" : "translate-x-full"
+                } transition-transform duration-300 ease-in-out`}
+            >
+              <div className="flex justify-between items-center border-b border-b-slate-300 pb-2">
+                <h2 className="text-xl text-primary font-semibold">
+                  Flight details
+                </h2>
+                <button
+                  onClick={() => {
+                    if (returnFlights.length === 0) {
+                      dispatch(clearFlightData());
+                    } else {
+                      dispatch(removeFlightData(1));
+                    }
+                    setIsSideMenuOpen(false);
+                  }}
+                >
+                  <AiOutlineClose className="text-xl text-gray-700" />
+                </button>
+              </div>
+              <div className=" overflow-y-auto flex flex-col items-center gap-5 my-5">
+                {flightDataSlice?.map(flight => (
                   <FlightCard
                     from={"selection"}
-                    key={flightDataSlice.id}
+                    key={flight.id}
                     isFlightSelected={isFlightSelected}
                     setIsFlightSelected={setIsFlightSelected}
                     // SetReturnFlight={SetReturnFlight}
-                    flight={flightDataSlice}
+                    flight={flight}
                     setIsSideMenuOpen={setIsSideMenuOpen}
-                    airlineName={flightDataSlice?.validatingAirlineCodes[0]}
+                    airlineName={flight?.airLineName}
                   />
-                } */}
-                </div>
+                ))
+                }
+              </div>
 
-                <div className="flex justify-between items-center border-t border-t-slate-300 pt-5 mt-5">
-                  <div>
-                    <h2 className="text-xl text-primary font-semibold">
-                      Flight details
-                    </h2>
-                    <h1 className="flex items-center gap-2">
-                      <span>Totla Price:</span>
-                      <span className="font-semibold text-lg">
-                        {flight?.price.currency}
-                      </span>
-                      <span className="font-semibold text-lg">
-                        {flight?.price.total}
-                      </span>
-                    </h1>
-                  </div>
-                  <button
-                    onClick={() => {
-                      router.push(`/${locale}/book-now?adults=${travelersParam}`);
-                    }}
-                    className=" text-white rounded-md py-2 px-3 cursor-pointer bg-green"
-                  >
-                    Continue
-                  </button>
+              <div className="flex justify-between items-center border-t border-t-slate-300 pt-5 mt-5">
+                <div>
+                  <h2 className="text-xl text-primary font-semibold">
+                    Flight details
+                  </h2>
+                  <h1 className="flex items-center gap-2">
+                    <span>Totla Price:</span>
+                    <span className="font-semibold text-lg">
+                      {selectedFlight?.price.currency}
+                    </span>
+                    <span className="font-semibold text-lg">
+                      {selectedFlight?.price.total}
+                    </span>
+                  </h1>
                 </div>
+                <button
+                  onClick={() => {
+                    router.push(`/${locale}/book-now?adults=${travelersParam}`);
+                  }}
+                  className=" text-white rounded-md py-2 px-3 cursor-pointer bg-green"
+                >
+                  Continue
+                </button>
               </div>
             </div>
-          ))
-        }
-      
+          </div>
+        ))
+      }
+
     </Section>
   );
 };
