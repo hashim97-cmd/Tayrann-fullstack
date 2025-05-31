@@ -25,7 +25,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
 }) => {
     const [isOpen, setIsOpen] = useState(false); // State to control visibility
     const [tempDate, setTempDate] = useState<Date | null>(value); // Store temporary date for month/year navigation
-
+console.log(value,"valueeeeeeeeeeeeeeeeee")
     const toggleDatePicker = () => setIsOpen((prev) => !prev); // Toggle open/close state
 
     const handleDayClick = (date: Date | null) => {
@@ -54,7 +54,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
             >
                 <p className="font-medium text-sm text-black">
                     {value
-                        ? value.toLocaleDateString("en-US", {
+                        ?   new Date(value).toLocaleDateString("en-US", {
                             month: "long",
                             day: "numeric",
                             year: "numeric",

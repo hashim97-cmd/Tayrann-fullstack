@@ -19,7 +19,7 @@ export async function getAirports(query: string = "saudi arabia") {
         // const amadeusApiUrl = 'https://test.api.amadeus.com/v1/reference-data/locations';
         // const accessToken = await getAmadeusToken();
         console.log(query, "query")
-        const airportsApiUrl = `https://testflight.eficta.com/api/flights-core/select2/airports?search=${query}&page=1`;
+        const airportsApiUrl = `http://localhost:3000/airports/getairport?keyword=${query}&page=1`;
 
         const response = await axios.get(airportsApiUrl, {
             params: { q: query },
@@ -29,7 +29,7 @@ export async function getAirports(query: string = "saudi arabia") {
                 "lng": detectLang(query)
             },
         });
-        return response.data.items; // Return the fetched airport data
+        return response.data.data; // Return the fetched airport data
     } catch (error: any) {
         if (axios.isCancel(error)) {
             console.log("Previous request canceled:", error.message);

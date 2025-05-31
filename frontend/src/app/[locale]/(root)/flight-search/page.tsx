@@ -23,7 +23,7 @@ import { useTranslations } from "next-intl";
 import { FlightSegment } from "@/app/components/website/home/hero-section";
 // import { changeTripType } from "@/redux/flights/flightSlice";
 import { getPersistedFlightData } from '@/utils/flightStorage';
-
+import { Flight } from "@/redux/flights/flightSlice";
 
 export interface AirlineCarrier {
   airLineCode: string;
@@ -466,14 +466,14 @@ const Page: React.FC = () => {
   return (
     <Section>
       <div className="py-20">
-        {/* <FlightSearchForm
+        <FlightSearchForm
           flights={flights}
           setFlights={setFlights}
           setLoading={setLoading}
           loading={loading}
           origin={origin}
           destination={destination}
-          departureDate={departureDate}
+          departureDate={departure}
           returnDate={returnDate}
           travelers={travelers}
           flightClass={flightClass}
@@ -483,7 +483,7 @@ const Page: React.FC = () => {
           setReturnDate={setReturnDate}
           setTravelers={setTravelers}
           setFlightClass={setFlightClass}
-        /> */}
+        />
         <div className="flex flex-wrap justify-between gap-5 py-10">
           <div className="lg:w-1/4 w-full ">
             <div className="flex justify-between flex-wrap px-3 items-center gap-5 ">
@@ -660,7 +660,7 @@ const Page: React.FC = () => {
       </div>
 
       {isSideMenuOpen &&
-        slectedData.map(selectedFlight => (
+        slectedData.map((selectedFlight: Flight) => (
           <div className="fixed inset-0 flex items-center justify-end top-0 z-[99] bg-[#00000099] h-full">
             <div
               className={`flex flex-col p-5 justify-between h-full w-[50%] bg-white shadow-lg transform ${isSideMenuOpen ? "translate-x-0" : "translate-x-full"

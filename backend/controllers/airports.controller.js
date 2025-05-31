@@ -7,6 +7,9 @@ export const getAirports = async (req, res, next) => {
     const { keyword = '', limit = 100, offset = 0 } = req.query;
     const lang = req.get('lng') || 'en'; // Default to English if no language header
 
+    console.log(keyword,"keyword");
+    console.log(lang,"lang")
+
     if (!keyword) {
         return res.status(400).json({ error: 'Missing keyword query param' });
     }

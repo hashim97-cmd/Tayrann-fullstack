@@ -302,7 +302,9 @@ const AirportSearchField: React.FC<Props> = ({
         // Fetch default airports when the component loads
         const loadDefaultAirports = async () => {
             try {
-                const fetchedAirports = await getAirports(""); // Fetch all airports
+                const fetchedAirports = await getAirports(); // Fetch all airports
+
+                console.log(fetchedAirports,"get default airports")
 
                 if (!Array.isArray(fetchedAirports)) {
                     console.error("Invalid API response: expected an array", fetchedAirports);
