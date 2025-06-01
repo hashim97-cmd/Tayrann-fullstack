@@ -1,45 +1,33 @@
 "use client";
 import React, { useEffect, useState } from "react";
-
-import axios from "axios";
 import FlightFilter from "@/app/components/website/flight-search/flight-filter";
 import FlightCard from "@/app/components/website/flight-details/flight-card";
 import Section from "@/app/components/shared/section";
 import FlightSearchForm from "@/app/components/website/flight-search/search-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import CustomProgressBar from "@/app/components/shared/progress-bar";
-import { PiAirplaneTakeoffThin } from "react-icons/pi";
 import Image from "next/image";
 import Heading from "@/app/components/shared/heading";
 import { calculateTotalDurationShortNew } from "@/utils/airports-helper";
 import { differenceInMinutes, parseISO } from "date-fns";
 import { useDispatch, useSelector } from "react-redux";
-import { IoIosCheckmarkCircle } from "react-icons/io";
 import { AiOutlineClose } from "react-icons/ai";
-import { FaPlaneDeparture, FaPlaneArrival } from "react-icons/fa";
 import { clearFlightData, removeFlightData, setSearchData } from "@/redux/flights/flightSlice";
 import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
-import { FlightSegment } from "@/app/components/website/home/hero-section";
 // import { changeTripType } from "@/redux/flights/flightSlice";
 import { getPersistedFlightData } from '@/utils/flightStorage';
 import { Flight } from "@/redux/flights/flightSlice";
-
-export interface AirlineCarrier {
-  airLineCode: string;
-  airLineName: string;
-  airlineNameAr: string;
-  image: string;
-}
+import useSearchflights from "@/hooks/useSearchflights"
 
 const Page: React.FC = () => {
-  const locale = useLocale();
-  const t = useTranslations("filters");
-  const searchParamsData = useSelector((state: any) => state.flightData.searchParamsData);
-  const hasHydrated = useSelector((state: any) => state._persist?.rehydrated);
-
-  // Directly destructure the properties (without Data suffix)
   const {
+    getFlights,
+    carriers,
+    flights,
+    setFlights,
+    loading,
+    setLoading,
     origin,
     destination,
     departure,
@@ -47,39 +35,16 @@ const Page: React.FC = () => {
     travelers,
     flightType,
     flightClass,
-    segments
-  } = searchParamsData || {};
+    segments,
+    hasHydrated
+  } = useSearchflights();
 
-
-  // For travelers, you might need to parse if it's stored as an object
-  const parsedTravelers = typeof travelers === 'string'
-    ? { adults: 1, children: 0, infants: 0 } // Default if string
-    : travelers;
-
+  const locale = useLocale();
+  const t = useTranslations("filters");
+  const searchParamsData = useSelector((state: any) => state.flightData.searchParamsData);
   const searchParams = useSearchParams();
-  const originParam = searchParams.get("origin");
-  const destinationParam = searchParams.get("destination");
-  const tripTypeParam = searchParams.get("tripType");
-  const departureDateParam = searchParams.get("departureDate");
-  const returnDateParam = searchParams.get("returnDate");
   const travelersParam = searchParams.get("adult") || "1";
-  const flightClassParam = searchParams.get("class");
   const [sortedFlights, setSortedFlights] = useState<any[]>([]);
-  const [originState, setOrigin] = useState(origin || "");
-  const [destinationState, setDestination] = useState(destination || "");
-
-  const [departureState, setDepartureDate] = useState(
-    departure ? new Date(departure) : new Date()
-  );
-  const [returnDateState, setReturnDate] = useState(
-    returnDate ? new Date(returnDate) : null
-  );
-
-  const [travelersState, setTravelers] = useState({
-    adults: Number(travelers),
-    children: 0,
-    infants: 0,
-  });
   const [flightClasss, setFlightClass] = useState(flightClass || "ECONOMY");
   const [filters, setFilters] = useState<{ [key: string]: any }>({
     price: Infinity, // Default to no price limit
@@ -87,34 +52,15 @@ const Page: React.FC = () => {
     airlines: [], // Default to show all airlines
     departureTime: "any", // Default to any time
   });
-  const [flights, setFlights] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [carriers, setCarriers] = useState<AirlineCarrier[]>([]);
-  const [selectedSorts, setSelectedSorts] = useState<string[]>([]);
 
-  const [searchedFlights, setSearchedFlights] = useState<any[]>([]);
-  const [outboundFlights, setOutboundFlights] = useState<any[]>([]);
+  const [selectedSorts, setSelectedSorts] = useState<string[]>([]);
   const [returnFlights, setReturnFlights] = useState<any[]>([]);
   const [isFlightSelected, setIsFlightSelected] = useState(false);
-  const tripType = useSelector((state: any) => state.flightData.tripType);
-
   const slectedData = useSelector((state: any) => state.flightData.slectedFlight);
   const flightDataSlice = useSelector((state: any) => state.flightData.flights);
-
-
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
-
-  function convertToISO8601(dateString: Date) {
-    const date = new Date(dateString);
-    // const year = date.getFulconvertToISO8601lYear();
-    // const month = String(date.getMonth() + 1).padStart(2, "0");
-    // const day = String(date.getDate()).padStart(2, "0");
-    const isoString = dateString.toISOString().split('T')[0]; // format: YYYY-MM-DD
-
-    return isoString;
-  }
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -125,89 +71,6 @@ const Page: React.FC = () => {
     }
   }, [dispatch, hasHydrated]);
 
-
-  const getFlights = async () => {
-    setLoading(true);
-    const requestData = {
-      destinations: flightType === 'multiCities'
-        ? segments.map((s: FlightSegment, index: number) => ({
-          id: (index + 1).toString(),
-          from: s.origin,
-          to: s.destination,
-          date: convertToISO8601(s.date)
-        })) : flightType === 'roundtrip' ? [{
-          id: 1,
-          from: origin,
-          to: destination,
-          date: convertToISO8601(departure),
-        }, {
-          id: 2,
-          from: destination,
-          to: origin,
-          date: returnDate ? convertToISO8601(returnDate) : undefined,
-        }]
-          :
-          [{
-            id: '1',
-            from: origin,
-            to: destination,
-            date: convertToISO8601(departure),
-          }],
-      adults: parsedTravelers.adults,
-      children: parsedTravelers.children,
-      infants: parsedTravelers.infants,
-      cabinClass: flightClass,
-      directFlight: false, // You can make this configurable if needed
-      calendarSearch: false // You can make this configurable if needed
-    };
-
-    try {
-      // api call
-      const response = await axios.post(
-        'http://localhost:3000/flights/flight-search',
-        requestData,
-        { headers: { 'Content-Type': 'application/json', "lng": `${locale}` } }
-      );
-      // Destructure the flights array
-      const allFlights =
-        response?.data?.data.map((flight: any) => {
-          return {
-            ...flight,
-            itineraries: [...flight.itineraries_formated],
-          };
-        }) || [];
-
-      // const outbound = allFlights.map((flight: any) => {
-      //   return {
-      //     ...flight,
-      //     itineraries:
-      //       flight.itineraries_formated && flight.itineraries_formated.length > 0
-      //         ? [flight.itineraries_formated[0]]
-      //         : [],
-      //   };
-      // });
-
-      // const returning = allFlights
-      //   .filter((flight: any) => flight.itineraries_formated?.length > 1)
-      //   .map((flight: any) => {
-      //     return {
-      //       ...flight,
-      //       itineraries: flight.itineraries_formated && flight.itineraries_formated.length > 1 ? [flight.itineraries_formated[1]] : [],
-      //     };
-      //   });
-
-      // Set them to state
-      setFlights(allFlights);
-      console.log(allFlights, "all flights test")
-      // setOutboundFlights(outbound);
-      // setReturnFlights(returning ? returning : []);
-      setCarriers(response?.data?.filters.carriers);
-      setLoading(false);
-    } catch (err) {
-      console.error(err);
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     return () => {
@@ -223,23 +86,6 @@ const Page: React.FC = () => {
       getFlights();
     }
   }, [searchParamsData]);
-
-
-  // useEffect(() => {
-  //   if (outboundFlights) {
-  //     setSearchedFlights(outboundFlights);
-  //   }
-  // }, [outboundFlights]);
-
-  //   useEffect(() => {
-  //     if (isFlightSelected) {
-  //       setSearchedFlights(returnFlights);
-  //     }
-  //   }, [isFlightSelected]);
-
-  // const SetReturnFlight = () => {
-  //   setSearchedFlights(returnFlights);
-  // };
 
   // Filter Flights Function
   const filteredFlights = flights?.filter((flight) => {
@@ -398,7 +244,6 @@ const Page: React.FC = () => {
         }
       });
     }
-
     setSortedFlights(sortedList.slice(0, 10)); // Get top 10 flights after sorting
   };
 
@@ -408,9 +253,6 @@ const Page: React.FC = () => {
       ? "bg-greenGradient text-white"
       : "border border-borderColor";
   };
-
-  // console.log("gonig flights :", outboundFlights);
-  // console.log("retunr flights :", returnFlights);
 
   const calculateStops = (flightSegments: any[]) => {
     // If there is more than 1 segment, there are stops
@@ -440,9 +282,6 @@ const Page: React.FC = () => {
 
   const displayFlightDetails = (flightSegments: any[]) => {
     const numberOfStops = calculateStops(flightSegments);
-
-    console.log(`Number of stops: ${numberOfStops}`);
-
     if (numberOfStops > 0) {
       for (let i = 0; i < flightSegments.length - 1; i++) {
         const currentSegment = flightSegments[i];
@@ -453,12 +292,9 @@ const Page: React.FC = () => {
           currentSegment.arrival.at,
           nextSegment.departure.at
         );
-
-
       }
     }
   };
-  console.log(flightDataSlice, "444444444444444444444")
 
   //@ts-ignore
   displayFlightDetails(flights[0]?.segments);
@@ -466,24 +302,7 @@ const Page: React.FC = () => {
   return (
     <Section>
       <div className="py-20">
-        <FlightSearchForm
-          flights={flights}
-          setFlights={setFlights}
-          setLoading={setLoading}
-          loading={loading}
-          origin={origin}
-          destination={destination}
-          departureDate={departure}
-          returnDate={returnDate}
-          travelers={travelers}
-          flightClass={flightClass}
-          setOrigin={setOrigin}
-          setDestination={setDestination}
-          setDepartureDate={setDepartureDate}
-          setReturnDate={setReturnDate}
-          setTravelers={setTravelers}
-          setFlightClass={setFlightClass}
-        />
+        <FlightSearchForm />
         <div className="flex flex-wrap justify-between gap-5 py-10">
           <div className="lg:w-1/4 w-full ">
             <div className="flex justify-between flex-wrap px-3 items-center gap-5 ">
@@ -552,55 +371,7 @@ const Page: React.FC = () => {
                 {t("earliestarrival")}
               </button>
             </div>
-
-            {/* {flightDataSlice?.length > 0 && (
-              <div className=" rounded-lg p-5 bg-gray flex flex-col gap-5">
-                <div className="flex items-center justify-between">
-                  <div className=" flex items-center gap-3">
-                    <IoIosCheckmarkCircle color="green" size={20} />
-                    <p>Selected Departure Flight</p>
-                  </div>
-                  <button
-                    className=" text-white rounded-md py-2 px-3 cursor-pointer bg-green"
-                    onClick={() => {
-                      setSearchedFlights(flights);
-                      dispatch(clearFlightData());
-                      setIsFlightSelected(false);
-                    }}
-                  >
-                    Change
-                  </button>
-                </div>
-                <div className="p-3">
-                  <FlightCard
-                    from={"seleted"}
-                    key={"#12"}
-                    isFlightSelected={isFlightSelected}
-                    setIsFlightSelected={setIsFlightSelected}
-                    flight={flightDataSlice[0]}
-                    airlineName={flightDataSlice[0].airlineName}
-                  />
-                </div>
-              </div>
-            )} */}
-
-            {/* {flightDataSlice?.length > 0 && (
-              <div className=" text-black flex py-5 items-senter justify-start gap-2">
-                <PiAirplaneTakeoffThin className=" rotate-270" size={40} />
-                <div className="flex flex-col items-start">
-                  <p className=" font-semibold text-2xl">
-                    Select return flight
-                  </p>
-                  <p className="font-normal text-md text-slate-500">
-                    The displayed prices represent the total cost for a
-                    round-trip journey
-                  </p>
-                </div>
-              </div>
-            )} */}
-
             {loading && <CustomProgressBar />}
-
             {selectedSorts.length > 0 ? (
               <div className="w-full space-y-6">
                 {sortedFlights?.length === 0 && !loading && (
@@ -727,7 +498,6 @@ const Page: React.FC = () => {
           </div>
         ))
       }
-
     </Section>
   );
 };
