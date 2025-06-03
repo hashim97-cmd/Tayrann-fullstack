@@ -6,3 +6,42 @@ https://chatgpt.com/share/68248c88-c270-8013-9a99-cdc4a393b39a
 
 amadeus api chatgpt
 https://chatgpt.com/share/68287bd5-7eb0-8013-814c-f35a5212ad54
+
+
+
+book requset
+{
+    "mapping": "CAI-MED|2025-06-28|XY-794",
+    "contact_info": {
+        "name": "Fady Shehata",
+        "email": "fadyshehata2@gmail.com",
+        "phone": "201027798",
+        "country_calling_code": "20"
+    },
+    "travellers": [
+        {
+            "UserType": "ADT", "firstName": "Fady", "lastName": "Shehata", "dateOfBirth": "2009-04-04", "gender": "MALE", "document": {
+                "number": "p16252i2i62", "issuanceDate": "2025-04-05", "expiryDate": "2025-06-30", "issuanceCountry": "SA", "nationality": "SA"
+            }
+        }
+    ],
+    "currencyCode": "SAR", "directFlight": false, "cabinClass": "Economy", "destinations": [
+        {
+            "id": 1, "from": "CAI", "to": "MED", "date": "2025-06-28"
+        }
+        // {
+        //     "id": 2, "from": "MXP", "to": "JED", "date": "2025-04-30"
+        // }
+    ],
+    "adults": 1,
+    "children": 0,
+    "infants": 0
+}
+
+
+book reponse
+{
+    "status": "success",
+    "reference": "FS-1748852155",
+    "invoice_url": "https://digitalpayments.alrajhibank.com.sa/pg/paymentpage.htm?PaymentID=700202515373916204"
+}

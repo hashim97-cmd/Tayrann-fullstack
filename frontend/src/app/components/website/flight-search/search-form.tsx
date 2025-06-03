@@ -9,14 +9,16 @@ import Travelers from "../../shared/traveller-field";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { changeTripType, setSearchData } from "@/redux/flights/flightSlice";
+import { changeTripType, setSearchData, removeFlightData, clearFlightSearch } from "@/redux/flights/flightSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { TripType } from "@/redux/flights/flightSlice";
 import useSearchflights from "@/hooks/useSearchflights";
+import { v4 as uuidv4 } from 'uuid';
 
 export const tripTypes: TripType[] = ["roundtrip", "oneway", "multiCities"];
 
 interface FlightSegment {
+  id: string; // Add unique ID
   origin: string;
   destination: string;
   date: Date | null;
@@ -44,7 +46,7 @@ const FlightSearchForm: React.FC<any> = () => {
     setSegments,
     searchParamsData,
   } = useSearchflights();
-  
+
   const t = useTranslations("searchForm");
   const locale = useLocale();
   const router = useRouter();
@@ -60,8 +62,8 @@ const FlightSearchForm: React.FC<any> = () => {
     }
     // Default to two empty segments
     return [
-      { origin: "", destination: "", date: null },
-      { origin: "", destination: "", date: null }
+      { id: uuidv4(), origin: "", destination: "", date: null },
+      { id: uuidv4(), origin: "", destination: "", date: null }
     ];
   });
 
@@ -75,15 +77,16 @@ const FlightSearchForm: React.FC<any> = () => {
       } else {
         // Reset to default segments if none exist
         setMultiCitySegments([
-          { origin: "", destination: "", date: null },
-          { origin: "", destination: "", date: null }
+          { id: uuidv4(), origin: "", destination: "", date: null },
+          { id: uuidv4(), origin: "", destination: "", date: null }
         ]);
       }
     }
   }, [tripType, searchParamsData, segments]);
 
   const handleAddSegment = () => {
-    setMultiCitySegments([...multiCitySegments, { origin: "", destination: "", date: null }]);
+    setMultiCitySegments([...multiCitySegments, { id: uuidv4(), origin: "", destination: "", date: null }
+    ]);
   };
 
   const handleRemoveSegment = (index: number) => {
@@ -96,8 +99,10 @@ const FlightSearchForm: React.FC<any> = () => {
 
   const handleSegmentChange = (index: number, field: keyof FlightSegment, value: any) => {
     const updatedSegments = [...multiCitySegments];
-    updatedSegments[index][field] = value;
-    setMultiCitySegments(updatedSegments);
+    updatedSegments[index] = {
+      ...updatedSegments[index],
+      [field]: value
+    }; setMultiCitySegments(updatedSegments);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -137,6 +142,9 @@ const FlightSearchForm: React.FC<any> = () => {
       segments: tripType === "multiCities" ? multiCitySegments : []
     };
 
+    dispatch(removeFlightData(1));
+    dispatch(clearFlightSearch())
+
     // Save to Redux
     dispatch(setSearchData(searchData));
 
@@ -172,17 +180,16 @@ const FlightSearchForm: React.FC<any> = () => {
             type="button"
             aria-label={type}
             onClick={() => dispatch(changeTripType(type))}
-            className={`px-4 py-2 font-medium text-base rounded-full ${
-              tripType === type
-                ? "bg-greenGradient text-white"
-                : "bg-[#EEEEEE] text-black"
-            }`}
+            className={`px-4 py-2 font-medium text-base rounded-full ${tripType === type
+              ? "bg-greenGradient text-white"
+              : "bg-[#EEEEEE] text-black"
+              }`}
           >
             {type === "roundtrip"
               ? `${t("tripTypes.roundtrip")}`
               : type === "oneway"
-              ? `${t("tripTypes.oneway")}`
-              : `${t("tripTypes.multiplecities")}`}
+                ? `${t("tripTypes.oneway")}`
+                : `${t("tripTypes.multiplecities")}`}
           </button>
         ))}
       </div>
@@ -286,14 +293,14 @@ const FlightSearchForm: React.FC<any> = () => {
         /* Multi-city fields */
         <div className="space-y-4">
           {multiCitySegments.map((segment, index) => (
-            <div key={index} className="flex gap-4 items-center flex-wrap">
+            <div key={segment.id} className="flex gap-4 items-center flex-wrap">
               <div className="relative lg:w-[30%] w-full">
                 <AirportSearchField
                   label={`${t("from")} ${index + 1}`}
                   placeholder={t("from")}
                   defaultValue={segment.origin}
-                  className="border rounded-full py-3 !border-borderColor"
                   onSelect={(value) => handleSegmentChange(index, "origin", value)}
+                  className="border rounded-full py-3 !border-borderColor"
                   icon={fromImg}
                 />
               </div>
@@ -302,9 +309,9 @@ const FlightSearchForm: React.FC<any> = () => {
                 <AirportSearchField
                   label={`${t("to")} ${index + 1}`}
                   placeholder={t("to")}
-                  className="border rounded-full py-3 !border-borderColor"
-                  onSelect={(value) => handleSegmentChange(index, "destination", value)}
                   defaultValue={segment.destination}
+                  onSelect={(value) => handleSegmentChange(index, "destination", value)}
+                  className="border rounded-full py-3 !border-borderColor"
                   icon={toImg}
                 />
               </div>
@@ -324,22 +331,21 @@ const FlightSearchForm: React.FC<any> = () => {
                 <button
                   type="button"
                   onClick={() => handleRemoveSegment(index)}
-                  className="bg-red-500 text-white py-2 px-3 rounded-lg text-sm flex items-center gap-1"
+                  className="bg-red-500 self-end text-white py-4 px-3 rounded-lg text-sm flex items-center gap-1"
                 >
                   <Minus className="h-4 w-4" />
-                  {t("remove")}
                 </button>
               )}
             </div>
           ))}
 
+
           <button
             type="button"
             onClick={handleAddSegment}
-            className="flex items-center bg-emerald-700 text-white rounded-lg justify-center p-2 gap-2 text-sm"
+            className="flex items-center bg-emerald-700 text-white rounded-lg justify-center p-4 gap-2 text-sm"
           >
             <Plus className="h-4 w-4" />
-            {t("addAnotherFlight")}
           </button>
         </div>
       )}
