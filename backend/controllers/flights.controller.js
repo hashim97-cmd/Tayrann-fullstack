@@ -27,7 +27,7 @@ const formatTime = (isoTime) => {
 };
 
 export const flightOffers = async (req, res, next) => {
-    console.log(req.body)
+    console.log(req.body,'request body')
     try {
         const lang = req.get('lng') || 'en'; // Default to English if no language header
         const { destinations, adults, children, infants, cabinClass, directFlight } = req.body;

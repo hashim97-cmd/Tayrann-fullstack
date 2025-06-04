@@ -7,6 +7,8 @@ import { calculateDurationSimple, calculateTotalDurationShortNew, getAirportByIA
 
 const FlightCard = ({flightData}:any) => {
 
+    console.log(flightData,"test")
+
     function getNumberOfStops(itinerary: any) {
         // Total number of stops is the sum of stops from each segment
         const stopCount = itinerary.segments.reduce((totalStops: number, segment: any) => {
@@ -76,16 +78,16 @@ const FlightCard = ({flightData}:any) => {
                                                 })}</p>
                     </div>
                     <div className='flex items-center w-full text-grayDark justify-between '>
-                        <p className="text-xs ">{itinerary.segments[0].fromAirport.code}</p>
+                        <p className="text-xs ">{itinerary.segments[0].departure.iataCode}</p>
                         <p className="text-xs ">{calculateTotalDurationShortNew(itinerary.segments)}</p>
-                        <p className="text-xs ">{itinerary.segments[itinerary.segments.length - 1].toAirport.code}</p>
+                        <p className="text-xs ">{itinerary.segments[itinerary.segments.length - 1].arrival.iataCode}</p>
                     </div>
                 </div>
 
             </div>
 
             <div className="bg-secondary text-white mt-6 p-2 rounded-lg flex justify-between items-center">
-                <p className="text-sm">{getAirportByIATA(itinerary.segments[itinerary.segments.length - 1].toAirport.code)}</p>
+                <p className="text-sm">{getAirportByIATA(itinerary.segments[itinerary.segments.length - 1].arrival.iataCode)}</p>
                 <div className="flex items-center space-x-2">
                     <BaggageIcon />
                     <p className='text-sm'>Baggage Included</p>

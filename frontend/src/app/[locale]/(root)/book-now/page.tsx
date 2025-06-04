@@ -40,30 +40,61 @@ interface AdultFormData {
   year?: string;
 }
 
+interface FormData {
+  title: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  dateOfBirth: {
+    day: string;
+    month: string;
+    year: string;
+  };
+  nationality: string;
+  documentType: string;
+  passportNumber: string;
+  issuanceCountry: string;
+  passportExpiry: {
+    day: string;
+    month: string;
+    year: string;
+  };
+  email: string;
+  phoneCode: string;
+  phoneNumber: string;
+}
+
 const Page = () => {
+
+  const [formData, setFormData] = useState({
+    title: 'Mr',
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    dateOfBirth: {
+      day: '',
+      month: '',
+      year: ''
+    },
+    nationality: '',
+    documentType: 'PASSPORT',
+    passportNumber: '',
+    issuanceCountry: '',
+    passportExpiry: {
+      day: '',
+      month: '',
+      year: ''
+    },
+    email: '',
+    phoneCode: '+1',
+    phoneNumber: ''
+  });
 
   // State for form data
   const searchParams = useSearchParams();
   const adultsnum = searchParams.get("adults");
   const [adults, setAdults] = useState(Number(adultsnum));
   const [loading, setLoading] = useState(false)
-
-  const [formData, setFormData] = useState(
-    Array.from({ length: adults }, () => ({
-      firstName: "",
-      lastName: "",
-      middleName: "",
-      callName: "",
-      passportNumber: "",
-      ageSelect: "Adult",
-      dateOfBirth: "",
-      day: "",
-      month: "",
-      year: "",
-      hijriCalendar: false,
-      nationality: "",
-    }))
-  );
 
 
   const [contactDetails, setContactDetails] = useState({
@@ -111,7 +142,6 @@ const Page = () => {
     }));
   };
 
-
   // Function to handle switch toggle
   const handleLookingSomedoneToggle = () => {
     setContactDetails((prev) => ({
@@ -119,8 +149,6 @@ const Page = () => {
       lookingSomeone: !prev.lookingSomeone,
     }));
   }
-
-
 
   // Function to handle payment change
   const handlePaymentChange = (value: string) => {
@@ -172,95 +200,34 @@ const Page = () => {
   };
 
   const flightDataSlice = useSelector((state: any) => state.flightData.slectedFlight);
-  console.log(flightDataSlice,"selected flight")
+  console.log(flightDataSlice, "selected flight")
 
-  // Add this function to handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
 
-    try {
-      // Validate form data
-      if (!validateForm()) {
-        return;
-      }
-
-      // Prepare the booking data
-      const bookingData = {
-        passengers: formData,
-        contactDetails,
-        paymentMethod: contactDetails.payType,
-        flightDetails: flightDataSlice[0], // Assuming you want the first flight
-        totalAmount: calculateTotalAmount(), // You'll need to implement this
-      };
-
-      // First, save the booking
-      const bookingResponse = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bookingData),
-      });
-
-      if (!bookingResponse.ok) {
-        throw new Error('Booking failed');
-      }
-
-      const bookingResult = await bookingResponse.json();
-
-      // Then process payment if not paying later
-      if (contactDetails.payType !== 'payLater') {
-        const paymentResponse = await fetch('/api/initializePayment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            amount: calculateTotalAmount(),
-            customerName: `${formData[0].firstName} ${formData[0].lastName}`,
-            customerEmail: contactDetails.email,
-            customerMobile: contactDetails.mobile,
-            bookingId: bookingResult.bookingId,
-          }),
-        });
-
-        const paymentData = await paymentResponse.json();
-        if (paymentData.Data && paymentData.Data.PaymentURL) {
-          window.location.href = paymentData.Data.PaymentURL;
-        }
-      } else {
-        // Redirect to confirmation page for pay later
-        window.location.href = `/booking-confirmation/${bookingResult.bookingId}`;
-      }
-    } catch (error) {
-      console.error('Booking failed:', error);
-      // Show error message to user
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Add form validation function
-  const validateForm = () => {
-    // Validate passenger details
-    for (const passenger of formData) {
-      if (!passenger.firstName || !passenger.lastName || !passenger.passportNumber) {
-        alert('Please fill all required passenger details');
-        return false;
-      }
-    }
+  // const validateForm = () => {
+  //   // Validate passenger details
+  //   for (const passenger of formData) {
+  //     if (!passenger.firstName || !passenger.lastName || !passenger.passportNumber) {
+  //       alert('Please fill all required passenger details');
+  //       return false;
+  //     }
+  //   }
 
-    // Validate contact details
-    if (!contactDetails.email || !contactDetails.mobile) {
-      alert('Please fill all contact details');
-      return false;
-    }
+  //   // Validate contact details
+  //   if (!contactDetails.email || !contactDetails.mobile) {
+  //     alert('Please fill all contact details');
+  //     return false;
+  //   }
 
-    // Validate payment method
-    if (contactDetails.payType === 'card' && !contactDetails.paymentCard) {
-      alert('Please select a payment card');
-      return false;
-    }
+  //   // Validate payment method
+  //   if (contactDetails.payType === 'card' && !contactDetails.paymentCard) {
+  //     alert('Please select a payment card');
+  //     return false;
+  //   }
 
-    return true;
-  };
+  //   return true;
+  // };
 
   // Add calculate total amount function (you'll need to implement based on your pricing)
   const calculateTotalAmount = () => {
@@ -268,416 +235,340 @@ const Page = () => {
     return 1000; // Example amount
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
 
+    // Transform form data to match required format
+    const travelerData = {
+      travelers: [
+        {
+          id: "1",
+          dateOfBirth: `${formData.dateOfBirth.year}-${formData.dateOfBirth.month.padStart(2, '0')}-${formData.dateOfBirth.day.padStart(2, '0')}`,
+          name: {
+            firstName: formData.firstName.toUpperCase(),
+            lastName: formData.lastName.toUpperCase()
+          },
+          gender: formData.title === 'Mr' ? 'MALE' : 'FEMALE',
+          contact: {
+            emailAddress: formData.email,
+            phones: [
+              {
+                deviceType: 'MOBILE',
+                countryCallingCode: formData.phoneCode.replace('+', ''),
+                number: formData.phoneNumber
+              }
+            ]
+          },
+          documents: [
+            {
+              documentType: formData.documentType,
+              number: formData.passportNumber,
+              expiryDate: `${formData.passportExpiry.year}-${formData.passportExpiry.month.padStart(2, '0')}-${formData.passportExpiry.day.padStart(2, '0')}`,
+              issuanceCountry: formData.issuanceCountry,
+              nationality: formData.nationality,
+              holder: true
+            }
+          ]
+        }
+      ]
+    };
+
+    console.log(travelerData);
+  };
 
   return (
-    "test"
-    // <Section>
-    //   <div className="mt-14 font-cairo">
-    //     <ParaHeading>
-    //       <span className="text-black">Important flight information</span>
-    //     </ParaHeading>
-    //   </div>
+    <Section>
+      <div className="mt-14 font-cairo">
+        <ParaHeading>
+          <span className="text-black">Important flight information</span>
+        </ParaHeading>
+      </div>
+      <div className="w-full flex items-start lg:flex-row flex-col gap-4 mt-6 mb-16">
 
-    //   <div className="w-full flex items-start lg:flex-row flex-col gap-4 mt-6 mb-16 font-cairo">
-    //     {/* Left Section */}
-    //     <div className="lg:w-[65%] w-full flex flex-col gap-4">
-    //       <div>
-    //         {formData && formData.map((data, index) => (
-    //           <div
-    //             key={index}
-    //             className="border border-bordered p-4 rounded-2xl mb-6"
-    //           >
-    //             {/* Dropdown for Age */}
-    //             <BigCustomDropdown
-    //               value={data.ageSelect}
-    //               options={options}
-    //               onChange={(value) =>
-    //                 setFormData((prev) =>
-    //                   prev.map((item, i) =>
-    //                     i === index ? { ...item, ageSelect: value } : item
-    //                   )
-    //                 )
-    //               }
-    //             />
+        {/* right section */}
+        <div className="lg:w-[65%] w-full flex flex-col gap-4">
+          <div className="mb-8">
+            <h1 className="text-2xl font-semibold text-gray-900">Enter your details</h1>
+            <div className="mt-4 flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center">2</div>
+              <div className="h-1 flex-1 bg-gray-200">
+                <div className="w-1/2 h-full bg-blue-500"></div>
+              </div>
+            </div>
+          </div>
 
-    //             {/* Orange Box */}
-    //             <div className="bg-orange flex items-center gap-2 border border-[#C0C0C0] my-2 text-white px-4 py-3 rounded-xl">
-    //               <div className="flex-shrink-0">
-    //                 <FilesIcon />
-    //               </div>
-    //               <p className="sm:text-base text-sm">
-    //                 Enter your details as they appear on your passport. Use
-    //                 English only.
-    //               </p>
-    //             </div>
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-8">
+              {/* Personal Details Section */}
+              <div>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Personal details</h2>
+                <div className="flex gap-4 mb-4">
+                  <button
+                    type="button"
+                    className={`px-4 py-2 rounded-full ${formData.title === 'Mr' ? 'bg-blue-500 text-white' : 'bg-gray-100'}`}
+                    onClick={() => setFormData({ ...formData, title: 'Mr' })}
+                  >
+                    Mr
+                  </button>
+                  <button
+                    type="button"
+                    className={`px-4 py-2 rounded-full ${formData.title === 'Ms' ? 'bg-blue-500 text-white' : 'bg-gray-100'}`}
+                    onClick={() => setFormData({ ...formData, title: 'Ms' })}
+                  >
+                    Ms
+                  </button>
+                  <button
+                    type="button"
+                    className={`px-4 py-2 rounded-full ${formData.title === 'Mrs' ? 'bg-blue-500 text-white' : 'bg-gray-100'}`}
+                    onClick={() => setFormData({ ...formData, title: 'Mrs' })}
+                  >
+                    Mrs
+                  </button>
+                </div>
 
-    //             {/* Title Selection */}
-    //             <div className="flex items-center gap-4 w-full mt-12 justify-start">
-    //               {callNames.map((name, i) => (
-    //                 <div
-    //                   key={i}
-    //                   onClick={() =>
-    //                     setFormData((prev) =>
-    //                       prev.map((item, j) =>
-    //                         j === index ? { ...item, callName: name } : item
-    //                       )
-    //                     )
-    //                   }
-    //                   className={`border border-bordered py-2 sm:w-[20%] w-full rounded-xl flex justify-center items-center cursor-pointer 
-    //           ${data.callName === name
-    //                       ? "bg-greenGradient text-white"
-    //                       : "bg-white text-black"
-    //                     }`}
-    //                 >
-    //                   {name}
-    //                 </div>
-    //               ))}
-    //             </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">First name *</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Middle name (Optional)</label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      value={formData.middleName}
+                      onChange={(e) => setFormData({ ...formData, middleName: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Last name *</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
 
-    //             {/* Input Fields */}
-    //             <div className="mt-6">
-    //               <CustomBookInput
-    //                 placeholder="First name"
-    //                 name="firstName"
-    //                 value={data.firstName}
-    //                 onChange={(e) =>
-    //                   setFormData((prev) =>
-    //                     prev.map((item, i) =>
-    //                       i === index
-    //                         ? { ...item, firstName: e.target.value }
-    //                         : item
-    //                     )
-    //                   )
-    //                 }
-    //                 inputType="text"
-    //               />
-    //             </div>
+              {/* Date of Birth Section */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Date of birth *</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Day"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      value={formData.dateOfBirth.day}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        dateOfBirth: { ...formData.dateOfBirth, day: e.target.value }
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Month"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      value={formData.dateOfBirth.month}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        dateOfBirth: { ...formData.dateOfBirth, month: e.target.value }
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Year"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      value={formData.dateOfBirth.year}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        dateOfBirth: { ...formData.dateOfBirth, year: e.target.value }
+                      })}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nationality *</label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  value={formData.nationality}
+                  onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
+                />
+              </div>
 
-    //             <div className="mt-6">
-    //               <CustomBookInput
-    //                 placeholder="Middle name"
-    //                 name="middleName"
-    //                 value={data.middleName}
-    //                 onChange={(e) =>
-    //                   setFormData((prev) =>
-    //                     prev.map((item, i) =>
-    //                       i === index
-    //                         ? { ...item, middleName: e.target.value }
-    //                         : item
-    //                     )
-    //                   )
-    //                 }
-    //                 inputType="text"
-    //               />
-    //             </div>
-
-    //             <div className="mt-4">
-    //               <CustomBookInput
-    //                 placeholder="Last name"
-    //                 name="lastName"
-    //                 value={data.lastName}
-    //                 onChange={(e) =>
-    //                   setFormData((prev) =>
-    //                     prev.map((item, i) =>
-    //                       i === index
-    //                         ? { ...item, lastName: e.target.value }
-    //                         : item
-    //                     )
-    //                   )
-    //                 }
-    //                 inputType="text"
-    //               />
-    //             </div>
-
-    //             <div className="mt-4">
-    //               <CustomBookInput
-    //                 placeholder="Passport Number"
-    //                 name="passportNumber"
-    //                 value={data.passportNumber}
-    //                 onChange={(e) =>
-    //                   setFormData((prev) =>
-    //                     prev.map((item, i) =>
-    //                       i === index
-    //                         ? { ...item, passportNumber: e.target.value }
-    //                         : item
-    //                     )
-    //                   )
-    //                 }
-    //                 inputType="number"
-    //               />
-    //             </div>
-
-    //             {/* Date of Birth Selection */}
-    //             <div className="mt-4 w-full grid sm:grid-cols-3 grid-cols-1 gap-6">
-    //               <CustomSelect
-    //                 options={DayOptions}
-    //                 value={data.day}
-    //                 onChange={(value) =>
-    //                   setFormData((prev) =>
-    //                     prev.map((item, i) =>
-    //                       i === index ? { ...item, day: value } : item
-    //                     )
-    //                   )
-    //                 }
-    //                 placeholder="Date of birth"
-    //               />
-    //               <CustomSelect
-    //                 label="Month"
-    //                 options={MonthOptions}
-    //                 value={data.month}
-    //                 onChange={(value) =>
-    //                   setFormData((prev) =>
-    //                     prev.map((item, i) =>
-    //                       i === index ? { ...item, month: value } : item
-    //                     )
-    //                   )
-    //                 }
-    //                 placeholder="Month"
-    //               />
-    //               <CustomSelect
-    //                 label="Year"
-    //                 options={YearOptions}
-    //                 value={data.year}
-    //                 onChange={(value) =>
-    //                   setFormData((prev) =>
-    //                     prev.map((item, i) =>
-    //                       i === index ? { ...item, year: value } : item
-    //                     )
-    //                   )
-    //                 }
-    //                 placeholder="Year"
-    //               />
-    //             </div>
-
-    //             {/* Hijri Calendar Switch */}
-    //             <div className="mt-4">
-    //               <CustomSwitch
-    //                 isOn={data.hijriCalendar}
-    //                 handleToggle={() =>
-    //                   setFormData((prev) =>
-    //                     prev.map((item, i) =>
-    //                       i === index
-    //                         ? { ...item, hijriCalendar: !item.hijriCalendar }
-    //                         : item
-    //                     )
-    //                   )
-    //                 }
-    //                 label="Hijri Calendar"
-    //               />
-    //             </div>
-
-    //             {/* Nationality Selection */}
-    //             <div className="mt-4">
-    //               <CustomSelect
-    //                 label="Nationality"
-    //                 options={NationalityOptions}
-    //                 value={data.nationality}
-    //                 onChange={(value) =>
-    //                   setFormData((prev) =>
-    //                     prev.map((item, i) =>
-    //                       i === index ? { ...item, nationality: value } : item
-    //                     )
-    //                   )
-    //                 }
-    //                 placeholder="Nationality"
-    //                 style={"justify-between"}
-    //               />
-    //             </div>
-    //           </div>
-    //         ))}
-
-    //         {/* contact  details */}
-    //         <div className='mt-8'>
-    //           <ParaHeading>
-    //             <span className='text-black'>Enter contact details</span>
-    //           </ParaHeading>
-
-    //           <div className="mt-8">
-    //             <CustomSwitch
-    //               isOn={contactDetails.lookingSomeone}
-    //               handleToggle={handleLookingSomedoneToggle}
-    //               label="Im’ booking for someone else"
-    //             />
-    //           </div>
-
-    //           <div className="mt-4">
-    //             <CustomBookInput
-    //               placeholder='Email to receive e-ticket'
-    //               name='email'
-    //               value={contactDetails.email}
-    //               onChange={handleInputChange}
-    //               inputType='email'
-    //             />
-    //           </div>
-
-    //           <div className="mt-4">
-    //             <CustomBookInput
-    //               placeholder='Mobile number'
-    //               name='mobile'
-    //               value={contactDetails.mobile}
-    //               onChange={handleInputChange}
-    //               inputType='text'
-    //             />
-    //           </div>
-    //         </div>
-
-    //         <div className="mt-6 pt-10 bg-[#FBFBFB] p-5 rounded-xl">
-    //           <ParaHeading>
-    //             <span className="text-black">About your baggage</span>
-    //           </ParaHeading>
-
-    //           <div className="flex justify-between sm:flex-row flex-col w-full mt-8">
-    //             <div className="lg:w-[40%] sm:w-[45%] w-full">
-    //               <MidHeading>Kuwait to Jeddah</MidHeading>
-    //               <div className="mt-4 bg-white py-6 px-4 rounded-xl">
-    //                 <h1 className="text-black lg:text-xl font-bold ">
-    //                   {" "}
-    //                   Baggage allowance{" "}
-    //                 </h1>
-    //                 {baggageOptions.map((e, i) => (
-    //                   <div className="flex items-start gap-2 mt-4">
-    //                     <div className="mt-1">
-    //                       <BaggageTickIcon />
-    //                     </div>
-    //                     <div>
-    //                       <h1 className="">{e.name}</h1>
-    //                       <p className="text-[10px]">{e.quantity}</p>
-    //                     </div>
-    //                   </div>
-    //                 ))}
-    //               </div>
-    //             </div>
-    //             <div className="lg:w-[40%] sm:w-[45%] w-full">
-    //               <MidHeading>Jeddah to Kuwait</MidHeading>
-    //               <div className="mt-4 bg-white py-6 px-4 rounded-xl">
-    //                 <h1 className="text-black lg:text-xl font-bold ">
-    //                   {" "}
-    //                   Baggage allowance{" "}
-    //                 </h1>
-    //                 {baggageOptions.map((e, i) => (
-    //                   <div className="flex items-start gap-2 mt-4">
-    //                     <div className="mt-1">
-    //                       <BaggageTickIcon />
-    //                     </div>
-    //                     <div>
-    //                       <h1 className="">{e.name}</h1>
-    //                       <p className="text-[10px]">{e.quantity}</p>
-    //                     </div>
-    //                   </div>
-    //                 ))}
-    //               </div>
-    //             </div>
-    //           </div>
-
-    //           <p className="md:text-lg font-[400] mt-4">
-    //             After booking, you can contact a travel advisor to add extra
-    //             baggage, subject to the airline's availability & rates.
-    //           </p>
-    //         </div>
-    //       </div>
-
-    //       <div className="border border-bordered p-4 rounded-2xl">
-    //         <PaymentOptions onPaymentChange={handlePaymentChange} />
-    //       </div>
-
-    //       <div className="border border-bordered p-4 rounded-2xl">
-    //         <PaymentCard onAddCard={handleAddCardClick} />
-    //       </div>
-
-    //       <Modal
-    //         isOpen={isModalOpen}
-    //         onClose={handleCloseModal}
-    //         children={
-    //           <AddNewCard
-    //             onClose={handleCloseModal}
-    //             cardNumber={newCardData.cardNumber}
-    //             expiryDate={newCardData.expiryDate}
-    //             cvc={newCardData.cvc}
-    //             name={newCardData.name}
-    //             country={newCardData.country}
-    //             onInputChange={handleNewCardInputChange}
-    //             onCountrySelect={handleNewCardCountrySelect}
-    //           />
-    //         }
-    //       />
-    //     </div>
-
-    //     {/* Right Section */}
-    //     <div className="lg:w-[35%] w-full flex flex-col gap-4">
-    //       {flightDataSlice && flightDataSlice.length > 0 ? (
-    //         flightDataSlice.map((flight: any, index: number) => (
-    //           <div key={index}>
-    //             <FlightCard flightData={flight} />
-    //           </div>
-    //         ))
-    //       ) : (
-    //         <div>
-    //           <FlightCard flightData={flightDataSlice[0]} />
-    //         </div>
-    //       )}
-
-    //       <RulesComponent flightData={flightDataSlice[0]} />
+              {/* Travel Document Section */}
+              <div>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Travel document</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Document type *</label>
+                    <input
+                      type="text"
+                      value="Passport"
+                      disabled
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Passport number *</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      value={formData.passportNumber}
+                      onChange={(e) => setFormData({ ...formData, passportNumber: e.target.value })}
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">issuing country *</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      value={formData.nationality}
+                      onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
+                    />
+                  </div>
+                </div>
 
 
-    //       <button
-    //         onClick={handleSubmit}
-    //         disabled={loading}
-    //         className="w-full bg-greenGradient text-white py-4 px-6 rounded-xl font-bold text-lg hover:opacity-90 disabled:opacity-70"
-    //       >
-    //         {loading ? 'Processing...' : 'Confirm Booking'}
-    //       </button>
-    //     </div>
-    //   </div>
-    // </Section>
+
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Passport expiry date *</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Day"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      value={formData.passportExpiry.day}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        passportExpiry: { ...formData.passportExpiry, day: e.target.value }
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Month"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      value={formData.passportExpiry.month}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        passportExpiry: { ...formData.passportExpiry, month: e.target.value }
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Year"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      value={formData.passportExpiry.year}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        passportExpiry: { ...formData.passportExpiry, year: e.target.value }
+                      })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Details Section */}
+              <div>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Contact details</h2>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                  <input
+                    type="email"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                  <p className="text-sm text-gray-500 mt-1">Your purchased tickets will be sent to this email.</p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Code *</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      value={formData.phoneCode}
+                      onChange={(e) => setFormData({ ...formData, phoneCode: e.target.value })}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Mobile number *</label>
+                    <input
+                      type="tel"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      value={formData.phoneNumber}
+                      onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6">
+                <button
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="w-full bg-greenGradient text-white py-4 px-6 rounded-xl font-bold text-lg hover:opacity-90 disabled:opacity-70"
+                >
+                  {loading ? 'Processing...' : 'Confirm Booking'}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+
+        {/* left section */}
+        <div className="lg:w-[35%] w-full flex flex-col gap-4">
+          {flightDataSlice && flightDataSlice.length > 0 ? (
+            flightDataSlice.map((flight: any, index: number) => (
+              <div key={index}>
+                <FlightCard flightData={flight} />
+              </div>
+            ))
+          ) : (
+            <div>
+              <FlightCard flightData={flightDataSlice[0]} />
+            </div>
+          )}
+
+          <RulesComponent flightData={flightDataSlice[0]} />
+        </div>
+      </div>
+    </Section>
+
   );
 };
 
 export default Page;
-
-
-// {
-//   "mapping": "JED-AMM|2025-04-23|RJ-709||AMM-MXP|2025-04-23|RJ-103||MXP-AMM|2025-04-30|RJ-104||AMM-JED|2025-05-01|RJ-704",
-//   "contact_info": {
-//       "name": "Fady Shehata",
-//       "email": "fadyshehata2@gmail.com",
-//       "phone": "201027792728",
-//       "country_calling_code": "20"
-//   },
-//   "travellers": [
-//       {
-//           "UserType": "ADT",
-//           "firstName": "Fady",
-//           "lastName": "Shehata",
-//           "dateOfBirth": "2009-04-04",
-//           "gender": "MALE",
-//           "document": {
-//               "number": "p16252i2i62",
-//               "issuanceDate": "2025-04-05",
-//               "expiryDate": "2025-04-30",
-//               "issuanceCountry": "SA",
-//               "nationality": "SA"
-//           }
-//       }
-//   ],
-//   "currencyCode": "SAR",
-//   "directFlight": false,
-//   "cabinClass": "Economy",
-//   "destinations": [
-//       {
-//           "id": 1,
-//           "from": "JED",
-//           "to": "MXP",
-//           "date": "2025-04-23"
-//       },
-//       {
-//           "id": 2,
-//           "from": "MXP",
-//           "to": "JED",
-//           "date": "2025-04-30"
-//       }
-//   ],
-//   "adults": 1,
-//   "children": 0,
-//   "infants": 0
-// },

@@ -9,7 +9,7 @@ import Travelers from "../../shared/traveller-field";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { changeTripType, setSearchData, removeFlightData, clearFlightSearch } from "@/redux/flights/flightSlice";
+import { changeTripType, setSearchData, removeFlightData, clearFlightSearch, clearFlightData } from "@/redux/flights/flightSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { TripType } from "@/redux/flights/flightSlice";
 import useSearchflights from "@/hooks/useSearchflights";
@@ -66,6 +66,7 @@ const FlightSearchForm: React.FC<any> = () => {
       { id: uuidv4(), origin: "", destination: "", date: null }
     ];
   });
+
 
   // Update segments when trip type or search params change
   useEffect(() => {
@@ -141,9 +142,10 @@ const FlightSearchForm: React.FC<any> = () => {
       flightClass,
       segments: tripType === "multiCities" ? multiCitySegments : []
     };
+    
+    dispatch(clearFlightData()); // ✅ Dispatch cleanup during unmount
 
-    dispatch(removeFlightData(1));
-    dispatch(clearFlightSearch())
+    dispatch(clearFlightSearch());
 
     // Save to Redux
     dispatch(setSearchData(searchData));
