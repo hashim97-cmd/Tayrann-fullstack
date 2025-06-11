@@ -27,7 +27,7 @@ const formatTime = (isoTime) => {
 };
 
 export const flightOffers = async (req, res, next) => {
-    console.log(req.body,'request body')
+    console.log(req.body, 'request body')
     try {
         const lang = req.get('lng') || 'en'; // Default to English if no language header
         const { destinations, adults, children, infants, cabinClass, directFlight } = req.body;
@@ -386,7 +386,21 @@ export const flightPricing = async (req, res, next) => {
 export const flightBooking = async (req, res, next) => {
     try {
         const token = await getAmadeusToken();
-        const { flightOffer, travelers } = req.body;
+        const { flightOffer, travelers, ticketingAgreement } = req.body;
+
+        // Prepare the request payload
+        const payload = {
+            data: {
+                type: 'flight-order',
+                flightOffers: [flightOffer],
+                travelers: travelers
+            }
+        };
+
+        // Only add ticketingAgreement if it exists in the request body
+        if (ticketingAgreement && Object.keys(ticketingAgreement).length > 0) {
+            payload.data.ticketingAgreement = ticketingAgreement;
+        }
 
         if (!flightOffer || !travelers) {
             return next(new ApiError(400, "Missing flightOffer or travelers in request body"));
@@ -394,13 +408,7 @@ export const flightBooking = async (req, res, next) => {
 
         const response = await axios.post(
             'https://test.api.amadeus.com/v1/booking/flight-orders',
-            {
-                data: {
-                    type: 'flight-order',
-                    flightOffers: [flightOffer],
-                    travelers: travelers
-                }
-            },
+            payload,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -429,7 +437,7 @@ export const getFlightOrder = async (req, res, next) => {
         const token = await getAmadeusToken();
         const flightId = req.params.flightId;
         console.log(flightId, "req params")
-        
+
         if (!flightId) {
             return next(new ApiError(400, "Missing flight id in request body"));
         }
