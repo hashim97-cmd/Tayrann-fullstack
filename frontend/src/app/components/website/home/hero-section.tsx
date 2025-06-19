@@ -103,12 +103,6 @@ const HeroSection = () => {
     { label: "First Class", value: "FIRST" },
   ];
 
-  const cityOptions = [
-    { label: "Mumbai", value: "Mumbai" },
-    { label: "Riyadh", value: "Riyadh" },
-    { label: "New York", value: "New York" },
-  ];
-
   const travelerOptions = [
     { label: "1 Traveler", value: "1" },
     { label: "2 Travelers", value: "2" },
@@ -361,12 +355,10 @@ const HeroSection = () => {
                 <div className="border-t border-bordered gap-12 py-4 mt-2 grid lg:grid-cols-4 px-4">
                   <Travelers
                     label={t("heroSection.searchForm.travelersLabel")}
-                    adults={adults}
-                    setAdults={setAdults}
-                    children={children}
-                    setChildren={setChildren}
-                    infants={infants}
-                    setInfants={setInfants}
+                    adults={flightFormData.travelers.adults}
+                    children={flightFormData.travelers.children}
+                    infants={flightFormData.travelers.infants}
+                    setFlightFormData={setFlightFormData}
                   />
                   <CustomSelect
                     options={flightClassOptions}

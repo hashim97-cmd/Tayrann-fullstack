@@ -25,6 +25,7 @@ import RulesComponent from "@/app/components/website/book-now/RulesComponent";
 import MyFatoorahIframe from "@/app/components/payment/MyFatoorahIframe"
 import { useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
+import PaymentForm from "@/app/components/payment/MyFatoorahForm"
 
 interface AdultFormData {
   id: number;
@@ -564,6 +565,7 @@ const Page = () => {
           )}
 
           <RulesComponent flightData={flightDataSlice[0]} />
+          <PaymentForm />
         </div>
       </div>
     </Section>

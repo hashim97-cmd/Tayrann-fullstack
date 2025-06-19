@@ -1,8 +1,8 @@
-import { ApiError } from "../utils/apiError.js";
-import { getAmadeusToken } from "../utils/amadeus-token.js";
+import { ApiError } from "../../utils/apiError.js";
+import { getAmadeusToken } from "../../utils/amadeus-token.js";
 import axios from "axios";
-import Airport from "../models/airport.model.js";
-import Airline from "../models/Airline.model.js"
+import Airport from "../../models/airport.model.js";
+import Airline from "../../models/Airline.model.js"
 
 // Helper function to format duration from ISO format (PT1H50M) to readable format
 const formatDuration = (isoDuration) => {
@@ -27,13 +27,43 @@ const formatTime = (isoTime) => {
 };
 
 export const flightOffers = async (req, res, next) => {
-    console.log(req.body, 'request body')
     try {
         const lang = req.get('lng') || 'en'; // Default to English if no language header
         const { destinations, adults, children, infants, cabinClass, directFlight } = req.body;
 
+        
         // Validate and prepare request to Amadeus API
         const token = await getAmadeusToken();
+        let travelersId = 1; // Start with 1
+        const travelers = [];
+        
+        // Add adults
+        for (let i = 0; i < adults; i++) {
+            travelers.push({
+                id: (travelersId++).toString(),
+                travelerType: "ADULT",
+                fareOptions: ["STANDARD"]
+            });
+        }
+        
+        // Add children
+        for (let i = 0; i < children; i++) {
+            travelers.push({
+                id: (travelersId++).toString(),
+                travelerType: "CHILD",
+                fareOptions: ["STANDARD"]
+            });
+        }
+        
+        // Add infants
+        for (let i = 0; i < infants; i++) {
+            travelers.push({
+                id: (travelersId++).toString(),
+                travelerType: "SEATED_INFANT",
+                fareOptions: ["STANDARD"],
+                associatedAdultId: "1" // or dynamically assign to actual adult ID
+            });
+        }
         const response = await axios.post(
             'https://test.api.amadeus.com/v2/shopping/flight-offers',
             {
@@ -47,24 +77,7 @@ export const flightOffers = async (req, res, next) => {
                         time: "00:00:00"
                     }
                 })),
-                travelers: [
-                    {
-                        id: "1",
-                        travelerType: "ADULT",
-                        fareOptions: ["STANDARD"]
-                    },
-                    ...(children > 0 ? [{
-                        id: "2",
-                        travelerType: "CHILD",
-                        fareOptions: ["STANDARD"]
-                    }] : []),
-                    ...(infants > 0 ? [{
-                        id: "3",
-                        travelerType: "SEATED_INFANT",
-                        fareOptions: ["STANDARD"],
-                        associatedAdultId: "1"
-                    }] : [])
-                ],
+                travelers,
                 sources: ["GDS"],
                 searchCriteria: {
                     maxFlightOffers: 250,

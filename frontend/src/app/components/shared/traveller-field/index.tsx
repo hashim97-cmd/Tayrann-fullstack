@@ -8,40 +8,48 @@ import { useLocale, useTranslations } from 'next-intl';
 interface TravelersProps {
     label?: string;
     adults: number;
-    setAdults: (count: number) => void;
     children: number;
-    setChildren: (count: number) => void;
     infants: number;
-    setInfants: (count: number) => void;
+    setFlightFormData: React.Dispatch<React.SetStateAction<{
+        origin: string;
+        destination: string;
+        departure: Date;
+        returnDate: Date;
+        travelers: {
+            adults: number;
+            children: number;
+            infants: number;
+        };
+        class: string;
+        flightType: string;
+        segments?: {
+            id: string;
+            origin: string;
+            destination: string;
+            date: Date;
+        }[] | undefined;
+    }>>;
 }
 
 const Travelers: React.FC<TravelersProps> = ({
     adults,
-    setAdults,
     children,
-    setChildren,
     infants,
-    setInfants,
+    setFlightFormData,
     label,
 }) => {
     const t = useTranslations('searchForm');
     const [isOpen, setIsOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
-    const handleCountChange = (setCount: (count: number) => void, count: number) => {
-        setCount(Math.max(0, count));
-    };
-
-    const handleAdultChange = (count: number) => {
-        handleCountChange(setAdults, adults + count);
-    };
-
-    const handleChildChange = (count: number) => {
-        handleCountChange(setChildren, children + count);
-    };
-
-    const handleInfantChange = (count: number) => {
-        handleCountChange(setInfants, infants + count);
+    const handleCountChange = (type: 'adults' | 'children' | 'infants', change: number) => {
+        setFlightFormData(prev => ({
+            ...prev,
+            travelers: {
+                ...prev.travelers,
+                [type]: Math.max(0, prev.travelers[type] + change)
+            }
+        }));
     };
 
     const handleButtonClick = () => {
@@ -56,9 +64,7 @@ const Travelers: React.FC<TravelersProps> = ({
 
     useEffect(() => {
         document.addEventListener('mousedown', handleOutsideClick);
-
         return () => {
-            // Cleanup function to remove event listener on unmount
             document.removeEventListener('mousedown', handleOutsideClick);
         };
     }, []);
@@ -68,7 +74,7 @@ const Travelers: React.FC<TravelersProps> = ({
             {label && <label className="block text-[#12121299]">{label}</label>}
             <button
                 onClick={handleButtonClick}
-                className=" py-3 px-2 w-full flex items-center justify-between"
+                className="py-3 px-2 w-full flex items-center justify-between"
             >
                 <span>{adults + children + infants} {t("travlers.buttonLabel")}</span>
                 <IoIosArrowDown className="text-lg" />
@@ -81,15 +87,15 @@ const Travelers: React.FC<TravelersProps> = ({
                         <div className="mr-2 text-black">{t("travlers.adults.label")} <span className="text-grayText text-xs"> ({t("travlers.adults.note")})</span></div>
                         <div className="flex gap-1 items-center">
                             <button
-                                onClick={() => handleAdultChange(-1)}
-                                className=" text-green text-2xl font-bold py-2 rounded-l-lg"
+                                onClick={() => handleCountChange('adults', -1)}
+                                className="text-green text-2xl font-bold py-2 rounded-l-lg"
                             >
                                 <AiOutlineMinusCircle />
                             </button>
                             <span className="px-2">{adults}</span>
                             <button
-                                onClick={() => handleAdultChange(1)}
-                                className=" text-green text-2xl font-bold py-2 rounded-r-lg"
+                                onClick={() => handleCountChange('adults', 1)}
+                                className="text-green text-2xl font-bold py-2 rounded-r-lg"
                             >
                                 <FiPlusCircle />
                             </button>
@@ -100,15 +106,15 @@ const Travelers: React.FC<TravelersProps> = ({
                         <div className="mr-2 text-black">{t("travlers.children.label")} <span className="text-grayText text-xs">({t("travlers.children.note")})</span></div>
                         <div className="flex gap-1 items-center">
                             <button
-                                onClick={() => handleChildChange(-1)}
-                                className=" text-green text-2xl font-bold py-2 rounded-l-lg"
+                                onClick={() => handleCountChange('children', -1)}
+                                className="text-green text-2xl font-bold py-2 rounded-l-lg"
                             >
                                 <AiOutlineMinusCircle />
                             </button>
                             <span className="px-2">{children}</span>
                             <button
-                                onClick={() => handleChildChange(1)}
-                                className=" text-green text-2xl font-bold py-2 rounded-r-lg"
+                                onClick={() => handleCountChange('children', 1)}
+                                className="text-green text-2xl font-bold py-2 rounded-r-lg"
                             >
                                 <FiPlusCircle />
                             </button>
@@ -116,18 +122,18 @@ const Travelers: React.FC<TravelersProps> = ({
                     </div>
 
                     <div className="flex justify-between items-center">
-                        <div className=" text-black">{t("travlers.infants.label")} <span className="text-grayText text-xs"> ({t("travlers.infants.note")})</span></div>
+                        <div className="text-black">{t("travlers.infants.label")} <span className="text-grayText text-xs"> ({t("travlers.infants.note")})</span></div>
                         <div className="flex gap-1 items-center">
                             <button
-                                onClick={() => handleInfantChange(-1)}
-                                className=" text-green text-2xl font-bold py-2 rounded-l-lg"
+                                onClick={() => handleCountChange('infants', -1)}
+                                className="text-green text-2xl font-bold py-2 rounded-l-lg"
                             >
                                 <AiOutlineMinusCircle />
                             </button>
                             <span className="px-2">{infants}</span>
                             <button
-                                onClick={() => handleInfantChange(1)}
-                                className=" text-green text-2xl font-bold py-2 rounded-r-lg"
+                                onClick={() => handleCountChange('infants', 1)}
+                                className="text-green text-2xl font-bold py-2 rounded-r-lg"
                             >
                                 <FiPlusCircle />
                             </button>

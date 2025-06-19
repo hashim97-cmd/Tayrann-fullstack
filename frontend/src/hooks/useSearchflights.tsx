@@ -50,7 +50,7 @@ const useSearchflights = () => {
       setReturnDate(searchParamsData.returnDate || null);
       setTravelers(searchParamsData.travelers || { adults: 1, children: 0, infants: 0 });
       setFlightType(searchParamsData.flightType || "oneway");
-      setFlightClass(searchParamsData.flightClass || "ECONOMY");
+      setFlightClass(searchParamsData.class || "ECONOMY");
       setSegments(searchParamsData.segments || []);
     }
   }, [searchParamsData]);

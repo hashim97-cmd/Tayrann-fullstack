@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import { flightOffers, flightPricing, flightBooking, getFlightOrder } from "../controllers/flights.controller.js";
+import { flightOffers, flightPricing, flightBooking, getFlightOrder } from "../../controllers/flights/flights.controller.js";
 
 
 router.post("/flight-search", flightOffers);
