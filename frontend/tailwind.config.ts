@@ -27,8 +27,8 @@ const config: Config = {
         grayBorder: "#D8D8D8",
       },
       fontFamily: {
-        cairo: ["var(--font-cairo)", "sans-serif"],
-        montserrat: ["var(--font-montserrat)", "sans-serif"],
+        // cairo: ["var(--font-cairo)", "sans-serif"],
+        // montserrat: ["var(--font-montserrat)", "sans-serif"],
         almarai : ["var(--font-almarai)", "sans-serif"],
       },
       backgroundImage: {

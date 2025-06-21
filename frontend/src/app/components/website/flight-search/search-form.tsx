@@ -230,7 +230,7 @@ const FlightSearchForm: React.FC<any> = () => {
 
       {/* Search Fields - Conditionally render based on trip type */}
       {tripType !== "multiCities" ? (
-        <div className="flex gap-7 justify-between flex-wrap items-center">
+        <div className="flex gap-7 justify-start flex-wrap items-center">
           {/* Standard one-way/roundtrip fields */}
           <div className="relative lg:w-1/5 w-full">
             <AirportSearchField

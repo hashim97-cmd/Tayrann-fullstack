@@ -45,3 +45,10 @@ book reponse
     "reference": "FS-1748852155",
     "invoice_url": "https://digitalpayments.alrajhibank.com.sa/pg/paymentpage.htm?PaymentID=700202515373916204"
 }
+
+
+
+
+
+full flow 
+https://chatgpt.com/share/6856af95-8ea8-8013-9127-02f250df89ae

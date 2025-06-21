@@ -17,8 +17,25 @@ import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 // import { changeTripType } from "@/redux/flights/flightSlice";
 import { getPersistedFlightData } from '@/utils/flightStorage';
-import { Flight } from "@/redux/flights/flightSlice";
 import useSearchflights from "@/hooks/useSearchflights"
+
+
+interface FlightPrice {
+  currency: string;
+  total: number;
+  base?: number;
+  taxes?: number;
+}
+
+export interface Flight {
+  id: string;
+  price: FlightPrice;
+  airLineName: string;
+  itineraries: any[]; // Update with proper type if available
+  segments: any[];    // Update with proper type if available
+  // Add other flight properties as needed
+}
+
 
 const Page: React.FC = () => {
   const {
@@ -455,7 +472,7 @@ const Page: React.FC = () => {
                 </button>
               </div>
               <div className=" overflow-y-auto flex flex-col items-center gap-5 my-5">
-                {flightDataSlice?.map(flight => (
+                {flightDataSlice?.map((flight : Flight) => (
                   <FlightCard
                     from={"selection"}
                     key={flight.id}

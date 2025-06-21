@@ -19,9 +19,10 @@ const inter = Inter({
 });
 
 const almarai = Almarai({
-  subsets: ['arabic'], // or ['latin', 'arabic'] if you want both
+  subsets: ['latin', 'arabic'], // or ['latin', 'arabic'] if you want both
   weight: ['300', '400', '700', '800'], // available weights: 300–800
   display: 'swap',
+  variable: "--font-almarai",
 })
 
 const cairo = Cairo({

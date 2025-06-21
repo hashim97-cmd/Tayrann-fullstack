@@ -86,7 +86,7 @@ const FlightCard = ({flightData}:any) => {
 
             </div>
 
-            <div className="bg-secondary text-white mt-6 p-2 rounded-lg flex justify-between items-center">
+            <div className="bg-greenGradient text-white mt-6 p-2 rounded-lg flex justify-between items-center">
                 <p className="text-sm">{getAirportByIATA(itinerary.segments[itinerary.segments.length - 1].arrival.iataCode)}</p>
                 <div className="flex items-center space-x-2">
                     <BaggageIcon />

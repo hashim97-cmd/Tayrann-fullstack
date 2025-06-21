@@ -1,30 +1,30 @@
 {
   "header": {
     "navItems": {
-      "promo": "عروض",
+      "promo": "العروض",
       "aboutUs": "من نحن",
       "packages": "الباقات",
-      "tayyranBusiness": "طيران للأعمال",
+      "tayyranBusiness": "طيّران بيزنس",
       "corporate": "الشركات"
     },
-    "registerButton": "تسجيل حساب"
+    "registerButton": "سجّل الآن"
   },
   "HomePage": {
     "heroSection": {
-      "mainHeading": "لنحجز رحلتك القادمة! الآن",
-      "subHeading": "اختر من بين أكثر من 1.5 مليون فندق و 450+ شركة طيران",
+      "mainHeading": "احجز رحلتك القادمة الآن!",
+      "subHeading": "اختر من بين أكثر من 1.5 مليون فندق و450+ شركة طيران",
       "searchForm": {
         "formTypeHotels": "فنادق",
-        "formTypeFlights": "طيران",
+        "formTypeFlights": "رحلات",
         "fromFieldLabel": "من",
         "toFieldLabel": "إلى",
         "DatePicker": "تاريخ المغادرة",
         "returnDate": "تاريخ العودة",
-        "travelersLabel": "المسافرون",
-        "classLabel": "الفئة",
-        "searchButton": "بحث",
+        "travelersLabel": "المسافرين",
+        "classLabel": "الدرجة",
+        "searchButton": "ابحث",
         "searchButtonLoading": "جاري البحث ...",
-        "loadingText": "جاري التحميل ...",
+        "loadingText": "جارٍ التحميل ...",
         "hotelCountryLabel": "اختر الدولة",
         "hotelCityLabel": "اختر المدينة",
         "hotelCheckInDate": "تاريخ الوصول",
@@ -32,121 +32,171 @@
       }
     },
     "bestOffer": {
-      "bestOfferHeading": "أفضل عرض",
-      "bestOfferText": "وفر 10% أو أكثر على أكثر من 100,000 فندق حول العالم عند تسجيل الدخول",
-      "bestOfferButton": "سجل دخول الآن"
+      "bestOfferHeading": "أفضل العروض",
+      "bestOfferText": "وفر 10% أو أكثر على أكثر من 100,000 فندق عند تسجيل الدخول",
+      "bestOfferButton": "سجّل الدخول الآن"
     },
     "topHotels": {
       "topHotelsHeading": "أفضل الفنادق",
       "categories": {
         "Trending": "رائج",
         "5-Star": "5 نجوم",
-        "Asian": "آسيوية",
-        "Europe": "أوروبا",
+        "Asian": "آسيوي",
+        "Europe": "أوروبي",
         "Middle-East": "الشرق الأوسط",
-        "Budget-Friendly": "اقتصادية",
-        "Adventure": "مغامرات",
-        "Family-Friendly": "عائلية"
+        "Budget-Friendly": "موفّر",
+        "Adventure": "مغامرة",
+        "Family-Friendly": "عائلي"
       }
     },
     "topDeals": {
-      "topDealsHeading": "عروض آخر لحظة لعطلة نهاية الأسبوع",
+      "topDealsHeading": "عروض نهاية الأسبوع",
       "bookNowButton": "احجز الآن"
     },
     "weekendDeals": {
-      "heading": "عروض آخر لحظة لعطلة نهاية الأسبوع",
+      "heading": "عروض نهاية الأسبوع",
       "dealsButton": "سعر الأعضاء متاح"
     },
     "topFlights": {
-      "heading": "رحلات طيران شائعة بالقرب منك",
+      "heading": "رحلات شائعة بالقرب منك",
       "categories": {
         "International": "دولية",
-        "Domestic": "محلية"
+        "Domestic": "داخلية"
       }
     },
     "mobileAppSection": {
-      "heading": "حمل تطبيقنا الآن!",
-      "exprensHeading": "اختبر الراحة بين يديك",
-      "subHeading": "استكشف قائمتنا المختارة لأفضل الدول للزيارة في 2024 واكتشف وجهات مذهلة تنتظر أن تستكشفها",
-      "downloadButton": "حمل الآن"
+      "heading": "احصل على تطبيقنا!",
+      "exprensHeading": "تجربة ملائمة بين يديك",
+      "subHeading": "اكتشف أفضل البلدان لزيارتها في 2024 واستكشف وجهات مذهلة",
+      "downloadButton": "حمّل الآن"
     }
   },
   "flightsearch": {
-    "noflight": "لا توجد رحلات متاحة"
+    "noflight": "لم يتم العثور على رحلة"
   },
   "searchForm": {
     "tripTypes": {
       "roundtrip": "ذهاب وعودة",
-      "oneway": "ذهاب فقط",
+      "oneway": "رحلة ذهاب فقط",
       "multiplecities": "مدن متعددة"
     },
     "flightClass": {
-      "economy": "اقتصادية",
-      "premiumEconomy": "اقتصادية متميزة",
+      "economy": "الاقتصادية",
+      "premiumEconomy": "الاقتصادية المميزة",
       "business": "رجال الأعمال",
-      "firstClass": "الأولى"
+      "firstClass": "الدرجة الأولى"
     },
     "travlers": {
-      "buttonLabel": "ركاب",
-      "travlers": "مسافرون",
+      "buttonLabel": "المسافرون",
+      "travlers": "المسافرون",
       "adults": {
-        "label": "بالغين",
+        "label": "البالغين",
         "note": "12+ سنة"
       },
       "children": {
-        "label": "أطفال",
-        "note": "2-12 سنة"
+        "label": "الأطفال",
+        "note": "2‑12 سنة"
       },
       "infants": {
-        "label": "رضع",
-        "note": "أقل من سنتين"
+        "label": "الرضع",
+        "note": "تحت 2 سنة"
       }
     },
     "from": "من",
     "to": "إلى",
     "returndate": "تاريخ العودة",
-    "searchButton": "بحث",
+    "searchButton": "ابحث",
     "loadingButton": "جاري البحث..."
   },
   "filters": {
-    "heading": "رحلات الطيران",
+    "heading": "الرحلات",
     "earliestarrival": "أقرب وصول",
     "earliesttakeoff": "أقرب إقلاع",
-    "shortest": "أقصر الرحلات",
-    "cheapest": "أرخص الرحلات",
+    "shortest": "أقصر رحلة",
+    "cheapest": "الأقل سعرًا",
     "departuretime": {
       "departuretimeheading": "وقت المغادرة",
-      "before_morning": "قبل 6 صباحاً",
-      "morning": "6 صباحاً - 12 ظهراً",
-      "afternoon": "12 ظهراً - 6 مساءً",
-      "evening": "بعد 6 مساءً"
+      "before_morning": "قبل 06:00 ص",
+      "morning": "06:00 ص - 12:00 م",
+      "afternoon": "12:00 م - 06:00 م",
+      "evening": "بعد 06:00 م"
     },
     "price": "نطاق السعر",
-    "pricecurrency": "ريال سعودي",
+    "pricecurrency": "ريال",
     "stops": {
-      "stopsheading": "محطات التوقف",
-        "any": "أي عدد من المحطات",
-        "direct": "رحلات مباشرة فقط",
-        "one": "محطة واحدة",
-        "two_or_more": "محطتين أو أكثر"
+      "stopsheading": "عدد التوقفات",
+      "any": "أي عدد من التوقفات",
+      "direct": "رحلات مباشرة فقط",
+      "one": "توقف واحد",
+      "two_or_more": "توقفين أو أكثر"
     },
     "airlines": "شركات الطيران"
   },
+  "bookNow": {
+    "pageTitle": "أكمل الحجز",
+    "personalDetails": {
+      "title": "تفاصيل شخصية",
+      "titleOptions": {
+        "mr": "السيد",
+        "ms": "الآنسة",
+        "mrs": "السيدة"
+      },
+      "firstName": "الاسم الأول *",
+      "middleName": "اسم الأب (اختياري)",
+      "lastName": "اسم العائلة *",
+      "dateOfBirth": "تاريخ الميلاد *",
+      "dayPlaceholder": "اليوم",
+      "monthPlaceholder": "الشهر",
+      "yearPlaceholder": "السنة",
+      "nationality": "الجنسية *"
+    },
+    "travelDocument": {
+      "title": "وثيقة السفر",
+      "documentType": "نوع الوثيقة *",
+      "passportNumber": "رقم الجواز *",
+      "issuingCountry": "دولة الإصدار *",
+      "expiryDate": "تاريخ انتهاء الجواز *"
+    },
+    "contactDetails": {
+      "title": "تفاصيل الإتصال",
+      "email": "البريد الإلكتروني *",
+      "emailNote": "سيتم إرسال التذاكر المباعة إلى هذا البريد.",
+      "phoneCode": "رمز الاتصال *",
+      "phoneNumber": "رقم الجوال *"
+    },
+    "payment": {
+      "confirmButton": "تأكيد الحجز",
+      "processing": "جارٍ المعالجة...",
+      "totalPrice": "السعر الإجمالي:",
+      "currency": "ريال",
+      "amount": "المبلغ"
+    },
+    "baggage": {
+      "cabin": "حقائب 7 كغم مقصورة",
+      "checked": "20 كغم الحقائب المسجلة",
+      "quantity": "قطعة"
+    },
+    "errors": {
+      "requiredField": "هذا الحقل مطلوب",
+      "invalidEmail": "يرجى إدخال بريد إلكتروني صحيح",
+      "invalidPhone": "يرجى إدخال رقم جوال صحيح"
+    }
+  },
   "footer": {
-    "contactUs": "اتصل بنا",
+    "contactUs": "تواصل معنا",
     "socialMedia": "تابعنا على وسائل التواصل",
-    "legal": "قانوني",
-    "importantLinks": "مصادر",
+    "legal": "الشروط والأحكام",
+    "importantLinks": "روابط مهمة",
     "aboutUs": "من نحن",
-    "footerPargraph": "في النشر والتصميم الجرافيكي، يتم استخدام نص لوريم إيبسوم بشكل شائع كنص نموذجي لتمثيل الشكل المرئي للمستند",
+    "footerPargraph": "في الطباعة والنشر، Lorem ipsum هو نص شكلي يستخدم عادة كعنصر مرئي في تصميم المستندات",
     "rights": "جميع الحقوق محفوظة ©"
   },
   "errors": {
-    "fromError": "الرجاء اختيار مدينة المغادرة",
-    "toError": "الرجاء اختيار مدينة الوصول",
-    "requiredFields": "الرجاء ملء جميع الحقول المطلوبة للبحث عن الفنادق",
+    "fromError": "يرجى اختيار مدينة المغادرة",
+    "toError": "يرجى اختيار وجهة",
+    "requiredFields": "يرجى تعبئة جميع الحقول المطلوبة للبحث عن فنادق.",
     "hotelErrorFetchingCountries": "خطأ في جلب الدول:",
     "hotelErrorFetchingcities": "خطأ في جلب المدن:",
-    "hotelSearchAlert": "الرجاء اختيار المدينة وتواريخ الوصول والمغادرة"
+    "hotelSearchAlert": "يرجى اختيار المدينة وتواريخ الدخول والخروج."
   }
 }

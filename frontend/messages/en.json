@@ -125,12 +125,62 @@
     "pricecurrency": "SAR",
     "stops": {
       "stopsheading": "Stops",
-        "any": "Any number of stops",
-        "direct": "Direct flights only",
-        "one": "1 stop",
-        "two_or_more": "2 stops or more"
+      "any": "Any number of stops",
+      "direct": "Direct flights only",
+      "one": "1 stop",
+      "two_or_more": "2 stops or more"
     },
     "airlines": "Airlines"
+  },
+  "bookNow": {
+    "pageTitle": "Complete Your Booking",
+    "personalDetails": {
+      "title": "Personal details",
+      "titleOptions": {
+        "mr": "Mr",
+        "ms": "Ms",
+        "mrs": "Mrs"
+      },
+      "firstName": "First name *",
+      "middleName": "Middle name (Optional)",
+      "lastName": "Last name *",
+      "dateOfBirth": "Date of birth *",
+      "dayPlaceholder": "Day",
+      "monthPlaceholder": "Month",
+      "yearPlaceholder": "Year",
+      "nationality": "Nationality *"
+    },
+    "travelDocument": {
+      "title": "Travel document",
+      "documentType": "Document type *",
+      "passportNumber": "Passport number *",
+      "issuingCountry": "Issuing country *",
+      "expiryDate": "Passport expiry date *"
+    },
+    "contactDetails": {
+      "title": "Contact details",
+      "email": "Email *",
+      "emailNote": "Your purchased tickets will be sent to this email.",
+      "phoneCode": "Code *",
+      "phoneNumber": "Mobile number *"
+    },
+    "payment": {
+      "confirmButton": "Confirm Booking",
+      "processing": "Processing...",
+      "totalPrice": "Total Price:",
+      "currency": "SAR",
+      "amount": "Amount"
+    },
+    "baggage": {
+      "cabin": "7 KG Cabin baggage",
+      "checked": "20kg total checked baggage",
+      "quantity": "1 piece"
+    },
+    "errors": {
+      "requiredField": "This field is required",
+      "invalidEmail": "Please enter a valid email",
+      "invalidPhone": "Please enter a valid phone number"
+    }
   },
   "footer": {
     "contactUs": "Contact Us",
