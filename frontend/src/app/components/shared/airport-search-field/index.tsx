@@ -304,7 +304,6 @@ const AirportSearchField: React.FC<Props> = ({
             try {
                 const fetchedAirports = await getAirports(); // Fetch all airports
 
-                console.log(fetchedAirports,"get default airports")
 
                 if (!Array.isArray(fetchedAirports)) {
                     console.error("Invalid API response: expected an array", fetchedAirports);
@@ -331,7 +330,7 @@ const AirportSearchField: React.FC<Props> = ({
             // Fetch airports from Amadeus API
             const fetchedAirports = await getAirports(searchTerm);
             console.log("🔹 Fetched Airports:", fetchedAirports);
-    
+
             // Compare fetched airports with existing ones using IATA code
             // const filteredAirports = existingAirports.filter(
             //     (airport: { iata_code: string }) =>
@@ -341,36 +340,35 @@ const AirportSearchField: React.FC<Props> = ({
             // );
 
             // console.log("✅ Matched Airports:", filteredAirports);
-    
+
             // Update state with Arabic names from Amadeus response
             // setAirports(prev => {
             //     const newAirports = filteredAirports.map(airport => {
             //         const matchedAirport = fetchedAirports.find(
             //             (fetched: { id: string }) => fetched.id === airport.iata_code
             //         );
-    
+
             //         return {
             //             ...airport,
             //             arabic_info: matchedAirport|| "nothing", // Get Arabic name if available
             //         };
             //     });
-    
+
             // });
-            
+
             setLoading(false);
             setAirports(fetchedAirports)
             return fetchedAirports;
         };
-    
+
         const delayDebounceFn = setTimeout(() => {
             fetchData();
         }, 500); // Debounce to prevent excessive API calls
-    
+
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm]);
-    
 
-    console.log(airports,"final result")
+
 
     const handleSelect = (item: Airport) => {
         onSelect(item.id);

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction } from "react";
 import fromImg from "/public/assets/from.png";
 import toImg from "/public/assets/to.png";
 import { Search, Plus, Minus } from "lucide-react";
@@ -56,18 +56,24 @@ const FlightSearchForm: React.FC<any> = () => {
 
   // Initialize segments with default values from Redux or empty values
   const [multiCitySegments, setMultiCitySegments] = useState<FlightSegment[]>(() => {
-    // Use existing segments if available and we're in multi-city mode
+    // Initialize with proper FlightSegment objects
     if (tripType === "multiCities" && segments?.length > 0) {
-      return segments;
+      return segments.map(segment => ({
+        id: segment.id || uuidv4(), // Ensure ID exists
+        origin: segment.origin,
+        destination: segment.destination,
+        date: segment.date
+      }));
     }
-    // Default to two empty segments
+
+    // Default empty segments with IDs
     return [
       { id: uuidv4(), origin: "", destination: "", date: null },
       { id: uuidv4(), origin: "", destination: "", date: null }
     ];
   });
 
-
+  console.log(loading, "Loading from search form")
   // Update segments when trip type or search params change
   useEffect(() => {
     if (tripType === "multiCities") {
@@ -142,7 +148,7 @@ const FlightSearchForm: React.FC<any> = () => {
       flightClass,
       segments: tripType === "multiCities" ? multiCitySegments : []
     };
-    
+
     dispatch(clearFlightData()); // ✅ Dispatch cleanup during unmount
 
     dispatch(clearFlightSearch());
@@ -204,14 +210,11 @@ const FlightSearchForm: React.FC<any> = () => {
             adults={travelers.adults}
             setAdults={(value) => setTravelers({ ...travelers, adults: value })}
             children={travelers.children}
-            setChildren={(value) =>
-              setTravelers({ ...travelers, children: value })
-            }
+            setChildren={(value) => setTravelers({ ...travelers, children: value })}
             infants={travelers.infants}
-            setInfants={(value) =>
-              setTravelers({ ...travelers, infants: value })
-            }
-          />
+            setInfants={(value) => setTravelers({ ...travelers, infants: value })} setFlightFormData={function (value: SetStateAction<{ origin: string; destination: string; departure: Date; returnDate: Date; travelers: { adults: number; children: number; infants: number; }; flightClass: string; flightType: string; segments?: { id: string; origin: string; destination: string; date: Date; }[] | undefined; }>): void {
+              throw new Error("Function not implemented.");
+            }} />
         </div>
         <select
           className="px-4 py-3 lg:w-1/5 w-full rounded-full border border-borderColor"
@@ -324,7 +327,7 @@ const FlightSearchForm: React.FC<any> = () => {
                   placeholder={t("date")}
                   className="px-4 py-3 w-full rounded-full border border-borderColor"
                   value={segment.date}
-                  minDate={index > 0 ? multiCitySegments[index - 1].date : new Date()}
+                  minDate={index > 0 ? multiCitySegments[index - 1].date || undefined : new Date()}
                   onChange={(e) => handleSegmentChange(index, "date", e)}
                 />
               </div>

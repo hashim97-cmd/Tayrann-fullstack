@@ -40,7 +40,7 @@ interface FlightFormData {
   departure: Date;
   returnDate: Date;
   travelers: { adults: number; children: number; infants: number; };
-  class: string;
+  flightClass: string;
   flightType: string;
   segments?: FlightSegment[];
 }
@@ -84,7 +84,7 @@ const HeroSection = () => {
       children,
       infants
     },
-    class: "",
+    flightClass: "",
     flightType: "oneway", // Explicit type assertion
     segments: [{ id: "", origin: "", destination: "", date: new Date() }]
   });
@@ -358,14 +358,19 @@ const HeroSection = () => {
                     adults={flightFormData.travelers.adults}
                     children={flightFormData.travelers.children}
                     infants={flightFormData.travelers.infants}
-                    setFlightFormData={setFlightFormData}
-                  />
+                    setFlightFormData={setFlightFormData} setAdults={function (value: number): void {
+                      throw new Error("Function not implemented.");
+                    } } setChildren={function (value: number): void {
+                      throw new Error("Function not implemented.");
+                    } } setInfants={function (value: number): void {
+                      throw new Error("Function not implemented.");
+                    } }                  />
                   <CustomSelect
                     options={flightClassOptions}
                     placeholder={t("heroSection.searchForm.classLabel")}
                     label={t("heroSection.searchForm.classLabel")}
                     name="class"
-                    value={flightFormData.class}
+                    value={flightFormData.flightClass}
                     onChange={(value) => handleFlightChange("class", value)}
                   />
                   <button

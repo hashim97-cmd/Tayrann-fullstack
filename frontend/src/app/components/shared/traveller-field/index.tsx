@@ -8,8 +8,11 @@ import { useLocale, useTranslations } from 'next-intl';
 interface TravelersProps {
     label?: string;
     adults: number;
+    setAdults: (value: number) => void;
     children: number;
+    setChildren: (value: number) => void;  // Add this
     infants: number;
+    setInfants: (value: number) => void;  // Add this
     setFlightFormData: React.Dispatch<React.SetStateAction<{
         origin: string;
         destination: string;
@@ -20,7 +23,7 @@ interface TravelersProps {
             children: number;
             infants: number;
         };
-        class: string;
+        flightClass: string;
         flightType: string;
         segments?: {
             id: string;

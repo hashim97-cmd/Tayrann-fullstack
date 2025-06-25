@@ -45,14 +45,7 @@ const Page: React.FC = () => {
     setFlights,
     loading,
     setLoading,
-    origin,
-    destination,
-    departure,
-    returnDate,
-    travelers,
-    flightType,
     flightClass,
-    segments,
     hasHydrated
   } = useSearchflights();
 
@@ -69,6 +62,7 @@ const Page: React.FC = () => {
     airlines: [], // Default to show all airlines
     departureTime: "any", // Default to any time
   });
+  console.log(loading, "Loading from search pageeeeeeeeeeee")
 
   const [selectedSorts, setSelectedSorts] = useState<string[]>([]);
   const [returnFlights, setReturnFlights] = useState<any[]>([]);
@@ -173,7 +167,6 @@ const Page: React.FC = () => {
               carrier.airLineName === selectedAirline))
         );
       });
-    console.log(isPriceValid, isStopsValid, isDepartureTimeValid, isAirlinesValid, "all filters");
     // Return true if all filters are valid
     return (
       isPriceValid && isStopsValid && isDepartureTimeValid && isAirlinesValid
@@ -472,7 +465,7 @@ const Page: React.FC = () => {
                 </button>
               </div>
               <div className=" overflow-y-auto flex flex-col items-center gap-5 my-5">
-                {flightDataSlice?.map((flight : Flight) => (
+                {flightDataSlice?.map((flight: Flight) => (
                   <FlightCard
                     from={"selection"}
                     key={flight.id}

@@ -40,7 +40,11 @@ export const ExecutePayment = async (req, res, next) => {
       {
         SessionId: sessionId,
         InvoiceValue: invoiceValue,           // e.g. 100
-        ProcessingDetails: { AutoCapture: false }   // 👈 AUTHORIZE ONLY
+        ProcessingDetails: {
+          AutoCapture: false,
+
+
+        }   // 👈 AUTHORIZE ONLY
       },
       {
         headers: {

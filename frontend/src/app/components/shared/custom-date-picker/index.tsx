@@ -9,7 +9,7 @@ interface CustomDatePickerProps {
     className?: string;
     placeholder?: string;
     value: Date | null;
-    minDate?: Date;
+    minDate?: Date | undefined ;
     maxDate?: Date;
     onChange: (date: Date | null) => void;
 }
@@ -25,7 +25,6 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
 }) => {
     const [isOpen, setIsOpen] = useState(false); // State to control visibility
     const [tempDate, setTempDate] = useState<Date | null>(value); // Store temporary date for month/year navigation
-console.log(value,"valueeeeeeeeeeeeeeeeee")
     const toggleDatePicker = () => setIsOpen((prev) => !prev); // Toggle open/close state
 
     const handleDayClick = (date: Date | null) => {

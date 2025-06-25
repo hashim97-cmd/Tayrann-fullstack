@@ -59,7 +59,7 @@ export const flightOffers = async (req, res, next) => {
         for (let i = 0; i < infants; i++) {
             travelers.push({
                 id: (travelersId++).toString(),
-                travelerType: "SEATED_INFANT",
+                travelerType: "HELD_INFANT",
                 fareOptions: ["STANDARD"],
                 associatedAdultId: "1" // or dynamically assign to actual adult ID
             });
@@ -400,6 +400,8 @@ export const flightBooking = async (req, res, next) => {
     try {
         const token = await getAmadeusToken();
         const { flightOffer, travelers, ticketingAgreement } = req.body;
+
+        console.log(travelers)
 
         // Prepare the request payload
         const payload = {

@@ -14,17 +14,19 @@ export interface AirlineCarrier {
 }
 
 interface FlightSegment {
+  id: string; // Add unique ID
   origin: string;
   destination: string;
-  date: Date;
+  date: Date | null;
 }
+
 
 const useSearchflights = () => {
   const locale = useLocale();
   const dispatch = useDispatch();
   const searchParamsData = useSelector((state: any) => state.flightData.searchParamsData);
   const hasHydrated = useSelector((state: any) => state._persist?.rehydrated);
-  
+
   const [flights, setFlights] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [origin, setOrigin] = useState<string>("");
@@ -71,9 +73,9 @@ const useSearchflights = () => {
   };
 
   const getFlights = async () => {
-    setLoading(true);
-    
+
     try {
+      setLoading(true);
       // Validate required fields based on flight type
       if (flightType === 'oneway' && (!origin || !destination || !departure)) {
         throw new Error("Missing required fields for one-way flight");
@@ -89,7 +91,7 @@ const useSearchflights = () => {
 
       // Prepare request data based on flight type
       let destinations;
-      
+
       if (flightType === 'multiCities') {
         destinations = segments.map((segment, index) => ({
           id: (index + 1).toString(),
@@ -160,7 +162,7 @@ const useSearchflights = () => {
   useEffect(() => {
     if (!hasHydrated) return;
 
-    const shouldSearch = 
+    const shouldSearch =
       (flightType === 'oneway' && origin && destination && departure) ||
       (flightType === 'roundtrip' && origin && destination && departure && returnDate) ||
       (flightType === 'multiCities' && segments.length > 0);

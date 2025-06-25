@@ -10,7 +10,7 @@ export interface Flight {
   travelers: number;
   page?: string;
   pageSize?: string;
-  flightClass?: string;
+  class?: string;
 }
 
 interface FlightSegment {
@@ -26,7 +26,7 @@ interface FlightFormData {
   departure: Date;
   returnDate: Date;
   travelers: { adults: number; children: number; infants: number; };
-  class: string;
+  flightClass: string;
   flightType: string;
   segments?: FlightSegment[];
 }
