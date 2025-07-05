@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Button from '../../shared/Button';
-import img from '@/public/assets/images/reviewPic.png'
 import Image from 'next/image';
 import { FlagIcon } from '@/app/svg';
 
@@ -95,11 +94,11 @@ const Reviews = () => {
                 {currentReviews.map((review, index) => (
                     <div key={index} className="border-t border-[#2e2e2e] pt-4">
                         <div className="flex items-start">
-                            <Image
+                            {/* <Image
                                 src={img}
                                 alt="avatar"
                                 className="w-10 h-10 rounded-full mr-4"
-                            />
+                            /> */}
                             <div>
                                 <p className=" text-sm">
                                     {review.rating} Amazing | <span className='text-gray2' >{review.author}</span>

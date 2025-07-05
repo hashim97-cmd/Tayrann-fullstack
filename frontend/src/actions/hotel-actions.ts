@@ -103,3 +103,4 @@ export async function AvailableHotelRooms(HotelBookingCode: any) {
     throw new Error("Failed to search hotels");
   }
 }
+

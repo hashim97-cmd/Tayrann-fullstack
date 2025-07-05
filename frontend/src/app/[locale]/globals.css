@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 .notranslate {
   unicode-bidi: plaintext;
 }
@@ -217,13 +216,6 @@ iframe.skiptranslate {
   /* Tailwind's green-500 */
   animation: progress-bar 20s ease-in-out infinite;
 }
-
-
-
-
-
-
-
 
 /* Custom scrollbar for WebKit browsers (Chrome, Safari, etc.) */
 ::-webkit-scrollbar {

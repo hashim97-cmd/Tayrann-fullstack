@@ -401,7 +401,6 @@ export const flightBooking = async (req, res, next) => {
         const token = await getAmadeusToken();
         const { flightOffer, travelers, ticketingAgreement } = req.body;
 
-        console.log(travelers)
 
         // Prepare the request payload
         const payload = {
