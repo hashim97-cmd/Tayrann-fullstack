@@ -4,7 +4,6 @@ import { ApiError } from "../../utils/apiError.js"
 export const InitiateSession = async (req, res, next) => {
 
   try {
-
     const paymentBaseUrl = process.env.MYFATOORAH_API_URL;
     const token = process.env.MYFATOORAH_TEST_TOKEN;
     const resposne = await axios.post(`${paymentBaseUrl}/v2/InitiateSession`, {}, {
@@ -13,7 +12,6 @@ export const InitiateSession = async (req, res, next) => {
         'Content-Type': 'application/json'
       }
     })
-    console.log(resposne);
     res.status(200).json({ data: resposne.data, status: resposne.status });
 
   } catch (error) {
@@ -29,22 +27,15 @@ export const ExecutePayment = async (req, res, next) => {
     const apiBase = process.env.MYFATOORAH_API_URL;
     const token = process.env.MYFATOORAH_TEST_TOKEN;
 
-    console.log('ExecutePayment payload:', {
-      SessionId: sessionId,
-      InvoiceValue: invoiceValue,
-      ProcessingDetails: { AutoCapture: false }
-    });
-
     const { data } = await axios.post(
       `${apiBase}/v2/ExecutePayment`,
       {
         SessionId: sessionId,
-        InvoiceValue: invoiceValue,           // e.g. 100
+        PaymentMethodId: 2,
+        InvoiceValue: 1,           // e.g. 100
         ProcessingDetails: {
           AutoCapture: false,
-
-
-        }   // 👈 AUTHORIZE ONLY
+        }
       },
       {
         headers: {
@@ -61,3 +52,87 @@ export const ExecutePayment = async (req, res, next) => {
     next(new ApiError(500, 'ExecutePayment failed'));
   }
 };
+
+
+export const GetPaymentStatus = async (req, res, next) => {
+  try {
+    const { key, keyType } = req.body; // keyType can be 'InvoiceId' or 'PaymentId'
+    const apiBase = process.env.MYFATOORAH_API_URL;
+    const token = process.env.MYFATOORAH_TEST_TOKEN;
+
+
+    const { data } = await axios.post(
+      `${apiBase}/v2/GetPaymentStatus`,
+      {
+        Key: key,
+        KeyType: keyType
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    res.status(200).json(data);
+  } catch (err) {
+    console.error('GetPaymentStatus error:', err?.response?.data || err.message);
+    next(new ApiError(500, 'GetPaymentStatus failed'));
+  }
+};
+
+
+export const captureAuthorizedPayment = async (req, res, next) => {
+  try {
+    const { key, keyType } = req.body; // keyType can be 'InvoiceId' or 'PaymentId'
+
+    const apiBase = process.env.MYFATOORAH_API_URL;
+    const token = process.env.MYFATOORAH_TEST_TOKEN;
+
+    const { data } = await axios.post(
+      `${apiBase}/v2/UpdatePaymentStatus`,
+      {
+        Operation: "capture",
+        Amount: 1,
+        Key: "0808527685925144516684",
+        KeyType: "PaymentId"
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    res.status(200).json(data);
+  } catch (err) {
+    console.error('captureAuthorizedPayment error:', err?.response?.data || err.message);
+    next(new ApiError(500, 'captureAuthorizedPayment failed'));
+  }
+};
+
+
+
+export const releaseAuthorizedPayment = async (req, res, next) => {
+  try {
+    const { key, keyType } = req.body; // keyType can be 'InvoiceId' or 'PaymentId'
+
+    const apiBase = process.env.MYFATOORAH_API_URL;
+    const token = process.env.MYFATOORAH_TEST_TOKEN;
+
+    const { data } = await axios.post(
+      `${apiBase}/v2/UpdatePaymentStatus`,
+      {
+        Operation: "release",
+        Amount: 1,
+        Key: "0808527665305144321983",
+        KeyType: "PaymentId"
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    res.status(200).json(data);
+  } catch (err) {
+    console.error('releaseAuthorizedPayment error:', err?.response?.data || err.message);
+    next(new ApiError(500, 'releaseAuthorizedPayment failed'));
+  }
+};
+
+
