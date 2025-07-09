@@ -4,18 +4,21 @@ export const getAmadeusToken = async () => {
   try {
     const clientId = process.env.AMADEUS_API_KEY;
     const clientSecret = process.env.AMADEUS_API_SECRET;
+    const baseUrl = process.env.AMADEUS_BASE_URL;
+    const guest_office_id = process.AMADUS_GUEST_OFFICE_ID;
 
     if (!clientId || !clientSecret) {
       throw new Error("Amadeus Client ID or Secret is not set in environment variables.");
     }
-
+    
     const payload = new URLSearchParams();
     payload.append("grant_type", "client_credentials");
     payload.append("client_id", clientId);
     payload.append("client_secret", clientSecret);
+    // payload.append("guest_office_id", guest_office_id);
 
     const response = await axios.post(
-      "https://test.api.amadeus.com/v1/security/oauth2/token",
+      `${baseUrl}/v1/security/oauth2/token`,
       payload,
       {
         headers: {

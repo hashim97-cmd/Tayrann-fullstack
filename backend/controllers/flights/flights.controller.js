@@ -30,13 +30,15 @@ export const flightOffers = async (req, res, next) => {
     try {
         const lang = req.get('lng') || 'en'; // Default to English if no language header
         const { destinations, adults, children, infants, cabinClass, directFlight } = req.body;
+        const baseUrl = process.env.AMADEUS_BASE_URL;
 
-        
         // Validate and prepare request to Amadeus API
         const token = await getAmadeusToken();
         let travelersId = 1; // Start with 1
         const travelers = [];
-        
+
+        console.log(token, "the token")
+
         // Add adults
         for (let i = 0; i < adults; i++) {
             travelers.push({
@@ -45,7 +47,7 @@ export const flightOffers = async (req, res, next) => {
                 fareOptions: ["STANDARD"]
             });
         }
-        
+
         // Add children
         for (let i = 0; i < children; i++) {
             travelers.push({
@@ -54,7 +56,7 @@ export const flightOffers = async (req, res, next) => {
                 fareOptions: ["STANDARD"]
             });
         }
-        
+
         // Add infants
         for (let i = 0; i < infants; i++) {
             travelers.push({
@@ -65,7 +67,7 @@ export const flightOffers = async (req, res, next) => {
             });
         }
         const response = await axios.post(
-            'https://test.api.amadeus.com/v2/shopping/flight-offers',
+            `${baseUrl}/v2/shopping/flight-offers`,
             {
                 currencyCode: "SAR",
                 originDestinations: destinations.map((dest, index) => ({
@@ -362,8 +364,9 @@ export const flightOffers = async (req, res, next) => {
 export const flightPricing = async (req, res, next) => {
     try {
         const token = await getAmadeusToken();
-
         const flightOffer = req.body;
+        const baseUrl = process.env.AMADEUS_BASE_URL;
+
 
         // Correct request body format
         const requestBody = {
@@ -374,7 +377,7 @@ export const flightPricing = async (req, res, next) => {
         };
 
         const response = await axios.post(
-            "https://test.api.amadeus.com/v1/shopping/flight-offers/pricing",
+            `${baseUrl}/v1/shopping/flight-offers/pricing`,
             requestBody, // Send requestBody directly, not wrapped in another object
             {
                 headers: {
@@ -400,6 +403,7 @@ export const flightBooking = async (req, res, next) => {
     try {
         const token = await getAmadeusToken();
         const { flightOffer, travelers, ticketingAgreement } = req.body;
+        const baseUrl = process.env.AMADEUS_BASE_URL;
 
 
         // Prepare the request payload
@@ -421,7 +425,7 @@ export const flightBooking = async (req, res, next) => {
         }
 
         const response = await axios.post(
-            'https://test.api.amadeus.com/v1/booking/flight-orders',
+            `${baseUrl}/v1/booking/flight-orders`,
             payload,
             {
                 headers: {
@@ -450,13 +454,13 @@ export const getFlightOrder = async (req, res, next) => {
     try {
         const token = await getAmadeusToken();
         const flightId = req.params.flightId;
-        console.log(flightId, "req params")
+        const baseUrl = process.env.AMADEUS_BASE_URL;
 
         if (!flightId) {
             return next(new ApiError(400, "Missing flight id in request body"));
         }
 
-        const apiUrl = `https://test.api.amadeus.com/v1/booking/flight-orders/${flightId}`;
+        const apiUrl = `${baseUrl}/v1/booking/flight-orders/${flightId}`;
 
         const response = await axios.get(apiUrl, {
             headers: {

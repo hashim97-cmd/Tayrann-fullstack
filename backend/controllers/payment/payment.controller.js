@@ -31,7 +31,7 @@ export const ExecutePayment = async (req, res, next) => {
       `${apiBase}/v2/ExecutePayment`,
       {
         SessionId: sessionId,
-        PaymentMethodId: 2,
+        // PaymentMethodId: 2,
         InvoiceValue: 1,           // e.g. 100
         ProcessingDetails: {
           AutoCapture: false,

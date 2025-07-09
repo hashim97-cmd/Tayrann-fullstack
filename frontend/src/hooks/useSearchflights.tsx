@@ -67,9 +67,10 @@ const useSearchflights = () => {
     }
   }, [dispatch, hasHydrated]);
 
-  const convertToISO8601 = (date: Date | null): string => {
+  const convertToISO8601 = (date: Date | string | null): string => {
     if (!date) return "";
-    return date.toISOString().split('T')[0];
+    const parsedDate = typeof date === "string" ? new Date(date) : date;
+    return parsedDate.toISOString().split("T")[0];
   };
 
   const getFlights = async () => {

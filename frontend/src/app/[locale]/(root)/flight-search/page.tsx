@@ -15,7 +15,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { clearFlightData, removeFlightData, setSearchData } from "@/redux/flights/flightSlice";
 import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
-// import { changeTripType } from "@/redux/flights/flightSlice";
+import FlightTicketSkeletonGrid from "@/app/components/shared/Feedback/FlightTicketSkeletonGrid";
 import { getPersistedFlightData } from '@/utils/flightStorage';
 import useSearchflights from "@/hooks/useSearchflights"
 
@@ -62,7 +62,6 @@ const Page: React.FC = () => {
     airlines: [], // Default to show all airlines
     departureTime: "any", // Default to any time
   });
-  console.log(loading, "Loading from search pageeeeeeeeeeee")
 
   const [selectedSorts, setSelectedSorts] = useState<string[]>([]);
   const [returnFlights, setReturnFlights] = useState<any[]>([]);
@@ -381,7 +380,12 @@ const Page: React.FC = () => {
                 {t("earliestarrival")}
               </button>
             </div>
-            {loading && <CustomProgressBar />}
+            {loading && (
+              <>
+                <CustomProgressBar />
+                <FlightTicketSkeletonGrid />
+              </>
+            )}
             {selectedSorts.length > 0 ? (
               <div className="w-full space-y-6">
                 {sortedFlights?.length === 0 && !loading && (
@@ -395,7 +399,7 @@ const Page: React.FC = () => {
                     />
                   </div>
                 )}
-                {sortedFlights?.map((flight) => (
+                {!loading && sortedFlights?.map((flight) => (
                   <FlightCard
                     from="card"
                     key={flight.id}
@@ -421,7 +425,7 @@ const Page: React.FC = () => {
                     />
                   </div>
                 )}
-                {filteredFlights?.map((flight) => (
+                {!loading && filteredFlights?.map((flight) => (
                   <FlightCard
                     from={"card"}
                     key={flight.id}

@@ -273,7 +273,6 @@ const FlightSearchForm: React.FC<any> = () => {
           <div className="relative lg:w-1/5 w-full">
             <CustomDatePicker
               label=""
-              placeholder={t("departureDate")}
               className="px-4 py-3 w-full rounded-full border border-borderColor"
               value={departure}
               minDate={new Date()}

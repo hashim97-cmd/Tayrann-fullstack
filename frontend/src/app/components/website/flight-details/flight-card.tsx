@@ -101,13 +101,13 @@ const FlightCard = ({
         </div>
       );
     } else {
-      const arrival = itinerary.segments[0]?.arrival_date_time;
-      const departure = itinerary.segments[1]?.departure_date_time;
+      const arrival = itinerary.segments[0]?.arrival_time;
+      const departure = itinerary.segments[1]?.departure_time;
       const waitingIata = itinerary.segments[0]?.toLocation;
 
       return (
         <p>
-          {calculateWaitingTime(arrival, departure)} in{" "}
+          {calculateWaitingTime(arrival, departure)}
           {getAirportByIATA(waitingIata)}
         </p>
       );
@@ -194,7 +194,7 @@ const FlightCard = ({
                     </div> */}
           <div className="lg:w-3/4 w-full bg-[#98FFC80A] p-5 text-center md:text-start">
             {flight?.itineraries_formated?.map((itinerary: any, index: number) => (
-              <div>
+              <div key={index}>
                 <div className="flex justify-between w-full items-center flex-wrap gap-4 mb-4">
                   <div className="flex gap-2 items-center">
                     <Image
